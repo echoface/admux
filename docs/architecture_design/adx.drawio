@@ -1,0 +1,126 @@
+<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36" version="26.1.0">
+  <diagram name="第 1 页" id="lOglNoOgg2-yyWmi44IV">
+    <mxGraphModel dx="2363" dy="1998" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="F5coQ6qRGWu3n4B3Xegy-55" value="SSP Adapters" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="200" y="-250" width="140" height="530" as="geometry" />
+        </mxCell>
+        <mxCell id="F5coQ6qRGWu3n4B3Xegy-50" value="DSP-Adapters" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="1200" y="-250" width="170" height="550" as="geometry" />
+        </mxCell>
+        <mxCell id="F5coQ6qRGWu3n4B3Xegy-38" value="DSPs" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="1390" y="-250" width="170" height="550" as="geometry" />
+        </mxCell>
+        <mxCell id="F5coQ6qRGWu3n4B3Xegy-15" value="..." style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="475" y="280" width="195" height="170" as="geometry" />
+        </mxCell>
+        <mxCell id="F5coQ6qRGWu3n4B3Xegy-1" value="爱奇艺" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="210" y="-160" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="F5coQ6qRGWu3n4B3Xegy-2" value="小米" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="210" y="90" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="F5coQ6qRGWu3n4B3Xegy-4" value="内部标准BIdding协议&lt;br&gt;OpenRTB" style="shape=step;perimeter=stepPerimeter;whiteSpace=wrap;html=1;fixedSize=1;" vertex="1" parent="1">
+          <mxGeometry x="351" y="90" width="160" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="F5coQ6qRGWu3n4B3Xegy-5" value="流量分发" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="540" y="90" width="480" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="F5coQ6qRGWu3n4B3Xegy-7" value="&lt;h1 style=&quot;margin-top: 0px;&quot;&gt;竞价发起方视角&lt;br&gt;&lt;/h1&gt;&lt;p&gt;竞价发起方可能是一个媒体自建的ssp 或者 adx； 在他们视野里，admux是一个广告购买方（DSP)&amp;nbsp;&lt;/p&gt;" style="text;html=1;whiteSpace=wrap;overflow=hidden;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="-190" y="110" width="180" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="F5coQ6qRGWu3n4B3Xegy-8" value="Biding Request" style="shape=step;perimeter=stepPerimeter;whiteSpace=wrap;html=1;fixedSize=1;" vertex="1" parent="1">
+          <mxGeometry x="20" y="110" width="130" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="F5coQ6qRGWu3n4B3Xegy-9" value="媒体定向索引" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="690" y="290" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="F5coQ6qRGWu3n4B3Xegy-11" value="&lt;h1 style=&quot;margin-top: 0px;&quot;&gt;检索需要分发的竞价方&lt;/h1&gt;&lt;p&gt;根据买方的要求，进行流量、人群、特征特征信息进行筛选，得到满足的买方，将流量fan-out的形式推动至买方服务，在买方视角里我们是“SSP”&lt;/p&gt;" style="text;html=1;whiteSpace=wrap;overflow=hidden;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="810" y="160" width="180" height="160" as="geometry" />
+        </mxCell>
+        <mxCell id="F5coQ6qRGWu3n4B3Xegy-12" value="特征服务" style="shape=doubleArrow;direction=south;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="560" y="170" width="60" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="F5coQ6qRGWu3n4B3Xegy-13" value="mapping" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="500" y="290" width="70" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="F5coQ6qRGWu3n4B3Xegy-14" value="人群包etc" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="580" y="290" width="70" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="F5coQ6qRGWu3n4B3Xegy-16" value="bider 检索" style="shape=doubleArrow;direction=south;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="720" y="170" width="60" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="F5coQ6qRGWu3n4B3Xegy-17" value="bidder indexing data" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=26;fillColor=none;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;html=1;fontSize=8;" vertex="1" parent="1">
+          <mxGeometry x="690" y="520" width="250" height="78" as="geometry" />
+        </mxCell>
+        <mxCell id="F5coQ6qRGWu3n4B3Xegy-18" value="bidder-jd:&amp;nbsp; sid in (快手) &amp;amp;&amp;amp; 性别 = 女 &amp;amp;&amp;amp; city in (topN)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;fontSize=8;" vertex="1" parent="F5coQ6qRGWu3n4B3Xegy-17">
+          <mxGeometry y="26" width="250" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="F5coQ6qRGWu3n4B3Xegy-19" value="bidder-ali: xxxx" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;fontSize=8;" vertex="1" parent="F5coQ6qRGWu3n4B3Xegy-17">
+          <mxGeometry y="52" width="250" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="F5coQ6qRGWu3n4B3Xegy-21" value="" style="endArrow=none;dashed=1;html=1;dashPattern=1 3;strokeWidth=2;rounded=0;" edge="1" parent="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="440" y="480" as="sourcePoint" />
+            <mxPoint x="1050" y="480" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="F5coQ6qRGWu3n4B3Xegy-28" value="DSP-B" style="whiteSpace=wrap;html=1;rounded=1;" vertex="1" parent="1">
+          <mxGeometry x="1420" y="80" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="F5coQ6qRGWu3n4B3Xegy-30" value="DSP-A" style="whiteSpace=wrap;html=1;rounded=1;" vertex="1" parent="1">
+          <mxGeometry x="1420" y="-50" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="F5coQ6qRGWu3n4B3Xegy-34" value="DSP-C" style="whiteSpace=wrap;html=1;rounded=1;" vertex="1" parent="1">
+          <mxGeometry x="1420" y="215" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="F5coQ6qRGWu3n4B3Xegy-54" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="F5coQ6qRGWu3n4B3Xegy-39" target="F5coQ6qRGWu3n4B3Xegy-53">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="F5coQ6qRGWu3n4B3Xegy-39" value="BidCandidates Filters" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="830" y="-235" width="120" height="150" as="geometry" />
+        </mxCell>
+        <mxCell id="F5coQ6qRGWu3n4B3Xegy-43" value="fan-out timeout" style="html=1;shadow=0;dashed=0;align=center;verticalAlign=middle;shape=mxgraph.arrows2.arrow;dy=0;dx=10;notch=10;" vertex="1" parent="1">
+          <mxGeometry x="1040" y="110" width="140" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="F5coQ6qRGWu3n4B3Xegy-45" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="F5coQ6qRGWu3n4B3Xegy-44" target="F5coQ6qRGWu3n4B3Xegy-30">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="F5coQ6qRGWu3n4B3Xegy-44" value="DSP-A&lt;br&gt;Adpter" style="whiteSpace=wrap;html=1;rounded=1;" vertex="1" parent="1">
+          <mxGeometry x="1240" y="-50" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="F5coQ6qRGWu3n4B3Xegy-47" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="F5coQ6qRGWu3n4B3Xegy-46" target="F5coQ6qRGWu3n4B3Xegy-28">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="F5coQ6qRGWu3n4B3Xegy-46" value="DSP-A&lt;br&gt;Adpter" style="whiteSpace=wrap;html=1;rounded=1;" vertex="1" parent="1">
+          <mxGeometry x="1240" y="80" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="F5coQ6qRGWu3n4B3Xegy-48" value="DSP-A&lt;br&gt;Adpter" style="whiteSpace=wrap;html=1;rounded=1;" vertex="1" parent="1">
+          <mxGeometry x="1240" y="215" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="F5coQ6qRGWu3n4B3Xegy-49" value="DSP-A&lt;br&gt;Adpter" style="whiteSpace=wrap;html=1;rounded=1;" vertex="1" parent="1">
+          <mxGeometry x="1250" y="225" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="F5coQ6qRGWu3n4B3Xegy-52" value="bid candidates" style="html=1;shadow=0;dashed=0;align=center;verticalAlign=middle;shape=mxgraph.arrows2.arrow;dy=0;dx=10;notch=0;flipH=1;" vertex="1" parent="1">
+          <mxGeometry x="1040" y="-175" width="140" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="F5coQ6qRGWu3n4B3Xegy-58" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="F5coQ6qRGWu3n4B3Xegy-53">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="340" y="-160" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="F5coQ6qRGWu3n4B3Xegy-53" value="ranking" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="550" y="-235" width="110" height="150" as="geometry" />
+        </mxCell>
+        <mxCell id="F5coQ6qRGWu3n4B3Xegy-56" value="&lt;h1 style=&quot;margin-top: 0px;&quot;&gt;Filters&lt;/h1&gt;&lt;p&gt;&lt;span style=&quot;text-align: center;&quot;&gt;常由ssp提出的一些筛选条件&lt;/span&gt;&lt;br style=&quot;text-align: center;&quot;&gt;&lt;span style=&quot;text-align: center;&quot;&gt;eg： 竞品/先审后投&lt;/span&gt;&lt;/p&gt;" style="text;html=1;whiteSpace=wrap;overflow=hidden;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="830" y="-70" width="180" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="F5coQ6qRGWu3n4B3Xegy-59" value="Biding Response" style="shape=step;perimeter=stepPerimeter;whiteSpace=wrap;html=1;fixedSize=1;flipH=1;" vertex="1" parent="1">
+          <mxGeometry x="20" y="-210" width="130" height="40" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
