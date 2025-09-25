@@ -1,0 +1,94 @@
+<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36" version="28.2.5">
+  <diagram name="Page-1" id="PFRN8-VvTQpRtUytrlTE">
+    <mxGraphModel dx="1364" dy="766" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="4snENz-oANfsqL80NS2b-1" value="&lt;div&gt;TLB/Nginx&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+          <mxGeometry x="160" y="100" width="770" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="4snENz-oANfsqL80NS2b-2" value="接入层" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" parent="1" vertex="1">
+          <mxGeometry x="40" y="115" width="60" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="4snENz-oANfsqL80NS2b-3" value="engine" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" parent="1" vertex="1">
+          <mxGeometry x="40" y="350" width="60" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="4snENz-oANfsqL80NS2b-4" value="" style="rounded=1;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+          <mxGeometry x="160" y="240" width="550" height="270" as="geometry" />
+        </mxCell>
+        <mxCell id="4snENz-oANfsqL80NS2b-5" value="biding core&lt;br&gt;核心框架" style="rounded=1;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+          <mxGeometry x="380" y="350" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="4snENz-oANfsqL80NS2b-6" value="ssp 接入层&lt;br&gt;cost： N * X" style="rounded=1;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+          <mxGeometry x="190" y="270" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="4snENz-oANfsqL80NS2b-7" value="Pacing &amp;amp; Budget&lt;br&gt;出价/利润控制" style="rounded=1;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+          <mxGeometry x="190" y="350" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="4snENz-oANfsqL80NS2b-8" value="Targeting Engine&lt;div&gt;定向/流控/频控&lt;/div&gt;" style="whiteSpace=wrap;html=1;rounded=1;" parent="1" vertex="1">
+          <mxGeometry x="560" y="350" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="4snENz-oANfsqL80NS2b-11" value="dsp 接入层&lt;br&gt;cost： N * X" style="rounded=1;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+          <mxGeometry x="190" y="430" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="4snENz-oANfsqL80NS2b-12" value="Bidder Engine&lt;div&gt;并发竞价协调器&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+          <mxGeometry x="375" y="270" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="4snENz-oANfsqL80NS2b-13" value="RTA" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" parent="1" vertex="1">
+          <mxGeometry x="380" y="430" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="4snENz-oANfsqL80NS2b-14" value="" style="rounded=1;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+          <mxGeometry x="730" y="240" width="240" height="270" as="geometry" />
+        </mxCell>
+        <mxCell id="4snENz-oANfsqL80NS2b-15" value="win/impl/click" style="rounded=1;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+          <mxGeometry x="790" y="260" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="4snENz-oANfsqL80NS2b-16" value="&lt;li data-end=&quot;868&quot; data-start=&quot;830&quot;&gt;&lt;p data-end=&quot;868&quot; data-start=&quot;832&quot;&gt;Dedup &amp;amp; Validation&lt;/p&gt;&lt;/li&gt;&lt;li data-end=&quot;868&quot; data-start=&quot;830&quot;&gt;&lt;p data-end=&quot;868&quot; data-start=&quot;832&quot;&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;去重、签名校验&lt;/span&gt;&lt;/p&gt;&lt;/li&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" parent="1" vertex="1">
+          <mxGeometry x="790" y="335" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="4snENz-oANfsqL80NS2b-17" value="" style="rounded=1;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+          <mxGeometry x="160" y="580" width="810" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="4snENz-oANfsqL80NS2b-18" value="kafka/RMQ" style="rounded=1;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+          <mxGeometry x="190" y="600" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="4snENz-oANfsqL80NS2b-20" value="&lt;div&gt;&lt;div style=&quot;line-height: 21px; white-space: pre;&quot;&gt;&lt;span style=&quot;background-color: light-dark(#ffffff, var(--ge-dark-color, #121212));&quot;&gt;&lt;font face=&quot;Helvetica&quot; style=&quot;color: rgb(0, 0, 0);&quot;&gt;Fraud &lt;br/&gt;实时规则 / ML&lt;/font&gt;&lt;/span&gt;&lt;/div&gt;&lt;/div&gt;" style="whiteSpace=wrap;html=1;rounded=1;" parent="1" vertex="1">
+          <mxGeometry x="790" y="420" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="4snENz-oANfsqL80NS2b-23" value="clickhouse" style="rounded=1;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+          <mxGeometry x="375" y="600" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="4snENz-oANfsqL80NS2b-24" value="presto" style="rounded=1;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+          <mxGeometry x="550" y="600" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="4snENz-oANfsqL80NS2b-25" value="Metric&lt;br&gt;Tracking&lt;br&gt;Logging" style="rounded=1;html=1;whiteSpace=wrap;align=left;" parent="1" vertex="1">
+          <mxGeometry x="1000" y="240" width="130" height="450" as="geometry" />
+        </mxCell>
+        <mxCell id="4snENz-oANfsqL80NS2b-26" value="Flink" style="rounded=1;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+          <mxGeometry x="750" y="600" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="4snENz-oANfsqL80NS2b-28" value="" style="rounded=1;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+          <mxGeometry x="160" y="720" width="810" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="4snENz-oANfsqL80NS2b-29" value="redis" style="rounded=1;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+          <mxGeometry x="200" y="745" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="4snENz-oANfsqL80NS2b-30" value="Hive" style="rounded=1;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+          <mxGeometry x="400" y="745" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="4snENz-oANfsqL80NS2b-31" value="S3" style="rounded=1;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+          <mxGeometry x="610" y="745" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="4snENz-oANfsqL80NS2b-32" value="&lt;h1 style=&quot;margin-top: 0px;&quot;&gt;&lt;font style=&quot;font-size: 18px; font-weight: normal;&quot;&gt;成本risk&lt;/font&gt;&lt;/h1&gt;&lt;p&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;Redis 如果考虑用户特征和mapping相关的内容；需关注成本&lt;/span&gt;&lt;/p&gt;" style="text;html=1;whiteSpace=wrap;overflow=hidden;rounded=0;" parent="1" vertex="1">
+          <mxGeometry x="770" y="715" width="190" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="4snENz-oANfsqL80NS2b-33" value="&lt;h1 style=&quot;margin-top: 0px;&quot;&gt;&lt;span style=&quot;font-weight: normal;&quot;&gt;&lt;font style=&quot;font-size: 17px;&quot;&gt;报价单&lt;br&gt;&lt;/font&gt;&lt;/span&gt;&lt;/h1&gt;&lt;p&gt;总人力： 3backend，1-2:data 1:fullstack&lt;br&gt;工期： 5month， 3month mvp demo&lt;br&gt;总包： 90w = min( 6p * 5m * 3w)&lt;br&gt;个人： min10w&amp;nbsp; = 5&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;0% upfront + 20% milestone + 30% on delivery&lt;/span&gt;&lt;/p&gt;" style="text;html=1;whiteSpace=wrap;overflow=hidden;rounded=0;" parent="1" vertex="1">
+          <mxGeometry x="940" y="100" width="220" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="4snENz-oANfsqL80NS2b-34" value="ETL/数据" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" parent="1" vertex="1">
+          <mxGeometry x="40" y="620" width="60" height="30" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
