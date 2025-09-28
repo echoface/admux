@@ -1,0 +1,115 @@
+# ADMUX ADX Server Test Environment Configuration
+
+server:
+  port: 8080
+  read_timeout: 100ms
+  write_timeout: 100ms
+  max_connections: 1000
+  enable_pprof: true
+  shutdown_timeout: 30s
+
+logging:
+  level: debug
+  output: console
+  file_path: /app/logs/adx-server.log
+  max_size: 100MB
+  max_backups: 5
+  max_age: 7
+  compress: true
+  enable_json: false
+
+redis:
+  addr: redis://localhost:6379
+  password: ""
+  db: 0
+  pool_size: 10
+  min_idle_conns: 2
+  dial_timeout: 5s
+  read_timeout: 1s
+  write_timeout: 1s
+  idle_timeout: 300s
+  max_retries: 3
+
+monitoring:
+  prometheus:
+    enabled: true
+    endpoint: /metrics
+    namespace: admux
+    subsystem: adx
+
+  health_check:
+    enabled: true
+    endpoint: /health
+    interval: 30s
+    timeout: 5s
+
+  jaeger:
+    enabled: false
+
+ssps:
+  - id: "xiaomi"
+    name: "小米"
+    endpoint: "/bid/xiaomi"
+    protocol: "openrtb"
+    qps_limit: 100
+    timeout: 50ms
+    enabled: true
+
+  - id: "kuaishou"
+    name: "快手"
+    endpoint: "/bid/kuaishou"
+    protocol: "custom"
+    qps_limit: 200
+    timeout: 50ms
+    enabled: true
+
+bidders:
+  - id: "test_dsp"
+    name: "测试DSP"
+    endpoint: "http://test-dsp.example.com/bid"
+    timeout: 100ms
+    qps_limit: 50
+    enabled: true
+    retry_count: 1
+    retry_delay: 10ms
+
+routing:
+  default_floor_price: 0.1
+  profit_margin: 0.1
+  min_bid_increment: 0.01
+  enable_pctr_prediction: false
+
+decision:
+  scoring_weights:
+    bid_price: 0.8
+    predicted_ctr: 0.1
+    quality_score: 0.1
+  auction_type: "first_price"
+  pricing:
+    min_price_increment: 0.01
+    max_price_adjustment: 0.1
+    price_precision: 2
+
+dmp:
+  enabled: false
+  timeout: 50ms
+
+cookie_mapping:
+  enabled: false
+
+security:
+  enable_rate_limit: false
+  rate_limit:
+    requests_per_minute: 1000
+    burst: 100
+  enable_cors: true
+  cors:
+    allowed_origins: ["*"]
+    allowed_methods: ["GET", "POST", "OPTIONS"]
+    allowed_headers: ["*"]
+
+feature_flags:
+  enable_debug_mode: true
+  enable_request_logging: true
+  enable_response_logging: true
+  enable_performance_profiling: true

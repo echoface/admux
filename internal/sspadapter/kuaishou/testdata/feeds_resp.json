@@ -1,0 +1,54 @@
+{
+    "request_id": "2000106537243907154",
+    "seat_bid": {
+      "bid": {
+        "bid_id": "87790032131badc1_bid_0",
+        "imp_id": "e7c5703c-74cf-4fb5-8537-9365c5c8e61c",
+        "price": 1.0399999618530273,
+        "ad_id": "10_183524809794",
+        "notice_url": "https://xx.xx.xx?xxx=${WIN_PRICE}",
+        "ad_tracking": [
+          {
+            "tracking_event": "AD_EXPOSURE",
+            "tracking_url": [
+              "https://xx.xx.xx?xxx=${WIN_PRICE}",
+              "https://xx.xx.xx"
+            ]
+          },
+          {
+            "tracking_event": "AD_CLICK",
+            "tracking_url": [
+              "https://xx.xx.xx?xxx=${WIN_PRICE}"
+            ]
+          }
+        ],
+        "adm": {
+          "creative_type": "VIDEO",
+          "interaction_type": "SURFING",
+          "title": "这是个广告标题",
+          "desc": "",
+          "click_url": "https://xx.xx.xx",
+          "video_url": "http://xxxx.xxx",
+          "video_duration": 44,
+          "cover_url": "https://dfsfafe.xxxx",
+          "app_name": "xxxxxx",
+          "icon_url": "https://xxxxx.xxxx",
+          "ad_type": "KUAISHOU_EXPLORE_FEED_VIDEO"
+        },
+        "creative_id": "83524809794",
+        "size": {
+          "width": 1140,
+          "height": 640
+        },
+        "bid_type": "CPM",
+        "video_size": {
+          "width": 1280,
+          "height": 720
+        }
+      },
+      "seat": "xxxx"
+    },
+    "status": 0,
+    "bid_id": "87790032131badc1"
+  }
+  

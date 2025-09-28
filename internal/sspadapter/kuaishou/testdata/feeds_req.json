@@ -1,0 +1,59 @@
+{
+    "request_id": "2000091718149623297",
+    "imp": {
+      "imp_id": "03f2dc37-5548-489e-af89-139197febde1",
+      "tag_id": "3543018",
+      "native": {
+        "native_id": "454227f6-0cb4-4e0c-8dbc-c744ec94921d",
+        "size": {
+          "width": 360,
+          "height": 640
+        }
+      },
+      "bid_floor": 0.1,
+      "secure": 1,
+      "ads_count": 1,
+      "cpm_bid_floor": 8.0,
+      "creative_type": [
+        "VIDEO",
+        "HORIZONTAL_SCREEN",
+        "VERTICAL_SCREEN"
+      ],
+      "extra1": "EhBxWick7xrnYHNyjwFY7zIiKA8wBg=="
+    },
+    "app": {
+      "app_id": "kuaishou_android",
+      "version": {
+        "major": 4,
+        "minor": 56
+      },
+      "paid": false
+    },
+    "device": {
+      "ip": "219.143.153.43",
+      "ipv6": "2409:8100:41b:dac8:2717:3ab6:317f:885d",
+      "device_type": "PHONE",
+      "os_type": "ANDROID",
+      "os_version": {
+        "major": 7,
+        "minor": 0
+      },
+      "screen_size": {
+        "width": 1080,
+        "height": 1920
+      },
+      "udid": {
+        "imei": "a447d31929a1ffe7bb2866abd00ba498",
+        "imei_md5": "a447d31929a1ffe7bb2866abd00ba498",
+        "oaid": ""
+      }
+    },
+    "network": {
+      "ipv4": "219.142.251.178",
+      "connection_type": "WIFI",
+      "operator_type": "UNKNOWN_OPERATOR"
+    },
+    "debug": false,
+    "timeout": 150
+  }
+  

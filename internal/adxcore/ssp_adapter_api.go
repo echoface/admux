@@ -3,7 +3,7 @@ package adxcore
 import (
 	"context"
 
-	"github.com/echoface/admux/api/gen/go/api/idl/openrtb"
+	"github.com/echoface/admux/api/gen/admux/openrtb"
 )
 
 type (
@@ -21,12 +21,12 @@ type (
 	BidRequestCtx struct {
 		context.Context
 
-		Request *openrtb.Request
+		Request *openrtb.BidRequest
 
 		canidates []*BidCandidate
 	}
 
 	BidCandidate struct {
-		Response *openrtb.Response
+		Response *openrtb.BidResponse
 	}
 )

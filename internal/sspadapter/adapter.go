@@ -1,28 +1,28 @@
-package ssadapter
+package sspadapter
 
 import (
 	"context"
 	"fmt"
 )
 
-type SSAdapter interface {
+type SSPAdapter interface {
 	Validate(ctx context.Context) (context.Context, error)
 	Process(ctx context.Context, data interface{}) (interface{}, error)
 }
 
-type SSAdapterFactory struct{}
+type SSPAdapterFactory struct{}
 
-func NewSSAdapter(ssid string) SSAdapter {
+func NewSSPAdapter(ssid string) SSPAdapter {
 	// For now, return a stub adapter
 	// In real implementation, this would return different adapters based on ssid
-	return &StubSSAdapter{ssid: ssid}
+	return &StubSSPAdapter{ssid: ssid}
 }
 
-type StubSSAdapter struct {
+type StubSSPAdapter struct {
 	ssid string
 }
 
-func (a *StubSSAdapter) Validate(ctx context.Context) (context.Context, error) {
+func (a *StubSSPAdapter) Validate(ctx context.Context) (context.Context, error) {
 	// Stub validation - in real implementation, this would validate the SSID
 	// against a configuration or database
 	if a.ssid == "" {
@@ -41,7 +41,7 @@ func (a *StubSSAdapter) Validate(ctx context.Context) (context.Context, error) {
 	return ctx, nil
 }
 
-func (a *StubSSAdapter) Process(ctx context.Context, data interface{}) (interface{}, error) {
+func (a *StubSSPAdapter) Process(ctx context.Context, data interface{}) (interface{}, error) {
 	// Stub processing - in real implementation, this would process the bid request
 	// according to SSID-specific rules
 	return map[string]interface{}{

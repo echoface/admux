@@ -1,0 +1,89 @@
+# ADMUX Tracking Server Test Environment Configuration
+
+server:
+  port: 8081
+  read_timeout: 100ms
+  write_timeout: 100ms
+  max_connections: 500
+  enable_pprof: true
+  shutdown_timeout: 30s
+
+logging:
+  level: debug
+  output: console
+  file_path: /app/logs/tracking-server.log
+  max_size: 50MB
+  max_backups: 3
+  max_age: 7
+  compress: true
+  enable_json: false
+
+database:
+  driver: "mysql"
+  dsn: "test_user:test_pass@tcp(localhost:3306)/admux_tracking_test?charset=utf8mb4&parseTime=True&loc=Local"
+  max_open_conns: 10
+  max_idle_conns: 5
+  conn_max_lifetime: 5m
+  conn_max_idle_time: 2m
+
+redis:
+  addr: "redis://localhost:6379"
+  password: ""
+  db: 1
+  pool_size: 10
+  min_idle_conns: 2
+  dial_timeout: 5s
+  read_timeout: 1s
+  write_timeout: 1s
+
+monitoring:
+  prometheus:
+    enabled: true
+    endpoint: /metrics
+    namespace: admux
+    subsystem: tracking
+
+  health_check:
+    enabled: true
+    endpoint: /health
+    interval: 30s
+    timeout: 5s
+
+tracking:
+  # 事件存储配置
+  event_batch_size: 100
+  event_flush_interval: 5s
+  event_retention_days: 7
+
+  # 点击监测配置
+  click_tracking:
+    enabled: true
+    redirect_delay: 0s
+    max_redirects: 5
+
+  # 曝光监测配置
+  impression_tracking:
+    enabled: true
+    cache_ttl: 24h
+
+  # 转化监测配置
+  conversion_tracking:
+    enabled: true
+    attribution_window: 30d
+    postback_url: ""
+
+security:
+  enable_rate_limit: false
+  rate_limit:
+    requests_per_minute: 500
+    burst: 50
+  enable_cors: true
+  cors:
+    allowed_origins: ["*"]
+    allowed_methods: ["GET", "POST", "OPTIONS"]
+    allowed_headers: ["*"]
+
+feature_flags:
+  enable_debug_mode: true
+  enable_event_logging: true
+  enable_performance_profiling: true

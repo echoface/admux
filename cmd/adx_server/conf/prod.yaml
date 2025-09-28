@@ -1,0 +1,163 @@
+# ADMUX ADX Server Production Environment Configuration
+
+server:
+  port: 8080
+  read_timeout: 100ms
+  write_timeout: 100ms
+  max_connections: 10000
+  enable_pprof: false
+  shutdown_timeout: 30s
+
+logging:
+  level: warn
+  output: file
+  file_path: /app/logs/adx-server.log
+  max_size: 100MB
+  max_backups: 20
+  max_age: 30
+  compress: true
+  enable_json: true
+
+redis:
+  addr: ${REDIS_URL}
+  password: ${REDIS_PASSWORD}
+  db: 0
+  pool_size: 100
+  min_idle_conns: 10
+  dial_timeout: 5s
+  read_timeout: 1s
+  write_timeout: 1s
+  idle_timeout: 300s
+  max_retries: 3
+
+monitoring:
+  prometheus:
+    enabled: true
+    endpoint: /metrics
+    namespace: admux
+    subsystem: adx
+
+  health_check:
+    enabled: true
+    endpoint: /health
+    interval: 30s
+    timeout: 5s
+
+  jaeger:
+    enabled: false
+
+ssps:
+  - id: "xiaomi"
+    name: "小米"
+    endpoint: "/bid/xiaomi"
+    protocol: "openrtb"
+    qps_limit: 5000
+    timeout: 50ms
+    enabled: true
+
+  - id: "kuaishou"
+    name: "快手"
+    endpoint: "/bid/kuaishou"
+    protocol: "custom"
+    qps_limit: 8000
+    timeout: 50ms
+    enabled: true
+
+  - id: "bytedance"
+    name: "巨量引擎"
+    endpoint: "/bid/bytedance"
+    protocol: "custom"
+    qps_limit: 6000
+    timeout: 60ms
+    enabled: true
+
+  - id: "maoyan"
+    name: "猫眼"
+    endpoint: "/bid/maoyan"
+    protocol: "openrtb"
+    qps_limit: 2000
+    timeout: 50ms
+    enabled: true
+
+bidders:
+  - id: "dsp_prod_1"
+    name: "生产DSP1"
+    endpoint: "http://dsp1.example.com/bid"
+    timeout: 80ms
+    qps_limit: 5000
+    auth_token: ${DSP1_AUTH_TOKEN}
+    enabled: true
+    retry_count: 2
+    retry_delay: 10ms
+
+  - id: "dsp_prod_2"
+    name: "生产DSP2"
+    endpoint: "http://dsp2.example.com/bid"
+    timeout: 100ms
+    qps_limit: 3000
+    auth_token: ${DSP2_AUTH_TOKEN}
+    enabled: true
+    retry_count: 2
+    retry_delay: 10ms
+
+  - id: "dsp_prod_3"
+    name: "生产DSP3"
+    endpoint: "http://dsp3.example.com/bid"
+    timeout: 90ms
+    qps_limit: 4000
+    auth_token: ${DSP3_AUTH_TOKEN}
+    enabled: true
+    retry_count: 2
+    retry_delay: 10ms
+
+routing:
+  default_floor_price: 0.5
+  profit_margin: 0.15
+  min_bid_increment: 0.01
+  enable_pctr_prediction: false
+  pctr_service_url: ${PCTR_SERVICE_URL}
+
+decision:
+  scoring_weights:
+    bid_price: 0.6
+    predicted_ctr: 0.3
+    quality_score: 0.1
+  auction_type: "modified_first_price"
+  pricing:
+    min_price_increment: 0.01
+    max_price_adjustment: 0.2
+    price_precision: 4
+
+dmp:
+  enabled: true
+  timeout: 20ms
+  cache_ttl: 300s
+  endpoints:
+    - "${DMP_SERVICE_URL}/user/profile"
+    - "${DMP_SERVICE_URL}/user/segments"
+
+cookie_mapping:
+  enabled: true
+  timeout: 10ms
+  sync_rate: 0.1
+  providers:
+    - name: "cm.cm"
+      endpoint: "http://cm.cm/cmexchange"
+      timeout: 50ms
+
+security:
+  enable_rate_limit: true
+  rate_limit:
+    requests_per_minute: 10000
+    burst: 1000
+  enable_cors: true
+  cors:
+    allowed_origins: ${ALLOWED_ORIGINS}
+    allowed_methods: ["GET", "POST", "OPTIONS"]
+    allowed_headers: ["Content-Type", "Authorization", "X-Request-ID"]
+
+feature_flags:
+  enable_debug_mode: false
+  enable_request_logging: false
+  enable_response_logging: false
+  enable_performance_profiling: false

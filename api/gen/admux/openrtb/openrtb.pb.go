@@ -3434,6 +3434,28 @@ func (BidRequest_Regs_GppSectionId) EnumDescriptor() ([]byte, []int) {
 // These objects are highly recommended, but only one applies to a given
 // bid request depending on whether the media is browser-based web content
 // or a non-browser application, respectively.
+//
+// OpenRTB扩展（规范中的"ext"字段和JSON表示）
+// 在这里通过Protocol Buffer扩展表示。此proto仅
+// 在每个可扩展对象处保留ID范围100-9999。
+// 保留范围：
+//
+//	100-199:   为Google保留
+//	200-299:   为IAB的正式标准扩展保留
+//	300-999:   可供其他交易所或项目使用
+//	1000-1999: 为Google保留
+//	2000-9999: 可供其他交易所或项目使用
+//
+// OpenRTB 2.0: 顶级出价请求对象包含全局唯一的
+// 出价请求或拍卖ID。此id属性是必需的，至少需要一个
+// 展示对象（第3.2.2节）。此顶级对象中的其他属性
+// 建立适用于所有提供的展示的规则和限制。
+//
+// 还有几个从属对象提供详细数据给
+// 潜在买家。其中包括Site和App对象，它们描述
+// 展示出现的发布媒体类型。
+// 这些对象强烈推荐，但根据媒体是基于浏览器的网页内容
+// 还是非浏览器应用程序，只有一个适用于给定的出价请求。
 type BidRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Types that are valid to be assigned to DistributionchannelOneof:
@@ -3444,6 +3466,9 @@ type BidRequest struct {
 	// Unique ID of the bid request, provided by the exchange.
 	// REQUIRED by the OpenRTB specification.
 	// Supported by Google.
+	// 出价请求的唯一ID，由交易所提供。
+	// OpenRTB规范要求。
+	// Google支持。
 	Id *string `protobuf:"bytes,1,req,name=id" json:"id,omitempty"`
 	// Array of Imp objects (Section 3.2.2) representing the impressions offered.
 	// At least 1 Imp object is required.
@@ -3738,6 +3763,8 @@ type BidRequest_Site_ struct {
 	// Information about the publisher's website. Only applicable and
 	// recommended for websites.
 	// Supported by Google.
+	// 发布者网站信息。仅适用于网站且推荐用于网站。
+	// Google支持。
 	Site *BidRequest_Site `protobuf:"bytes,3,opt,name=site,oneof"`
 }
 
@@ -3745,6 +3772,8 @@ type BidRequest_App_ struct {
 	// Information about the publisher's app
 	// (non-browser applications). Only applicable and recommended for apps.
 	// Supported by Google.
+	// 发布者应用信息（非浏览器应用程序）。仅适用于应用且推荐用于应用。
+	// Google支持。
 	App *BidRequest_App `protobuf:"bytes,4,opt,name=app,oneof"`
 }
 
@@ -4216,19 +4245,34 @@ func (x *NativeResponse) GetPrivacy() string {
 // indicates the type of impression being offered. The publisher can choose
 // one such type which is the typical case or mix them at their discretion.
 // Any given bid for the impression must conform to one of the offered types.
+//
+// OpenRTB 2.0: 此对象描述正在拍卖的广告位或展示。
+// 单个出价请求可以包含多个Imp对象，
+// 一个用例可能是支持在给定页面上销售所有广告位的交易所。
+// 每个Imp对象都有一个必需的ID，以便出价可以单独引用它们。
+//
+// Banner（第3.2.3节）、Video（第3.2.4节）和/或
+// Native（第3.2.5节）对象从属于Imp对象的存在
+// 表示提供的展示类型。发布者可以选择一种类型（典型情况）
+// 或根据其判断混合使用。任何给定的展示出价必须符合提供的类型之一。
 type BidRequest_Imp struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// A unique identifier for this impression within the context of the bid
 	// request (typically, value starts with 1, and increments up to n
 	// for n impressions).
 	// Supported by Google.
+	// 在出价请求上下文中此展示的唯一标识符
+	// （通常，值从1开始，对于n个展示递增到n）。
+	// Google支持。
 	Id *string `protobuf:"bytes,1,req,name=id" json:"id,omitempty"`
 	// A Banner object (Section 3.2.3); required if this impression is
 	// offered as a banner ad opportunity.
+	// Banner对象（第3.2.3节）；如果此展示作为横幅广告机会提供，则为必需。
 	// Supported by Google.
 	Banner *BidRequest_Imp_Banner `protobuf:"bytes,2,opt,name=banner" json:"banner,omitempty"`
 	// A Video object (Section 3.2.4); required if this impression is
 	// offered as a video ad opportunity.
+	// Video对象（第3.2.4节）；如果此展示作为视频广告机会提供，则为必需。
 	// Supported by Google.
 	Video *BidRequest_Imp_Video `protobuf:"bytes,3,opt,name=video" json:"video,omitempty"`
 	// An Audio object; required if this impression is offered
@@ -4292,6 +4336,7 @@ type BidRequest_Imp struct {
 	Pmp *BidRequest_Imp_Pmp `protobuf:"bytes,11,opt,name=pmp" json:"pmp,omitempty"`
 	// A Native object (Section 3.2.5); required if this impression is
 	// offered as a native ad opportunity.
+	// Native对象（第3.2.5节）；如果此展示作为原生广告机会提供，则为必需。
 	// Supported by Google.
 	Native *BidRequest_Imp_Native `protobuf:"bytes,13,opt,name=native" json:"native,omitempty"`
 	// Advisory as to the number of seconds that may elapse
@@ -6374,75 +6419,119 @@ type BidRequest_Imp_Banner struct {
 	// Exact width in device-independent pixels (DIPS); recommended if no
 	// format objects are specified.
 	// Supported by Google.
+	// 设备无关像素（DIPS）中的精确宽度；如果未指定格式对象则推荐使用。
+	// Google支持。
 	W *int32 `protobuf:"varint,1,opt,name=w" json:"w,omitempty"`
 	// Exact height in device-independent pixels (DIPS); recommended if no
 	// format objects are specified.
 	// Supported by Google.
+	// 设备无关像素（DIPS）中的精确高度；如果未指定格式对象则推荐使用。
+	// Google支持。
 	H *int32 `protobuf:"varint,2,opt,name=h" json:"h,omitempty"`
 	// Array of format objects representing the banner sizes permitted.
 	// If none are specified, then use of the h and w attributes
 	// is highly recommended.
 	// Supported by Google.
+	// 表示允许的横幅尺寸的格式对象数组。
+	// 如果未指定任何格式，则强烈建议使用h和w属性。
+	// Google支持。
 	Format []*BidRequest_Imp_Banner_Format `protobuf:"bytes,15,rep,name=format" json:"format,omitempty"`
 	// Unique identifier for this banner object. Recommended when Banner
 	// objects are used with a Video object (Section 3.2.4) to represent
 	// an array of companion ads. Values usually start at 1 and increase
 	// with each object; should be unique within an impression.
 	// Not supported by Google.
+	// 此横幅对象的唯一标识符。当Banner对象与Video对象（第3.2.4节）一起使用时推荐使用，
+	// 以表示伴随广告数组。值通常从1开始，并随着每个对象递增；
+	// 在展示内应该是唯一的。
+	// Google不支持。
 	Id *string `protobuf:"bytes,3,opt,name=id" json:"id,omitempty"`
 	// Ad position on screen.
 	// Supported by Google.
+	// 屏幕上的广告位置。
+	// Google支持。
 	Pos *AdPosition `protobuf:"varint,4,opt,name=pos,enum=admux.openrtb.AdPosition" json:"pos,omitempty"`
 	// Blocked banner ad types.
 	// Not supported by Google.
+	// 被阻止的横幅广告类型。
+	// Google不支持。
 	Btype []BannerAdType `protobuf:"varint,5,rep,packed,name=btype,enum=admux.openrtb.BannerAdType" json:"btype,omitempty"`
 	// Blocked creative attributes. See the full list of available attributes:
 	// https://github.com/InteractiveAdvertisingBureau/AdCOM/blob/main/AdCOM%20v1.0%20FINAL.md#list--creative-attributes-
 	// Supported by Google.
+	// 被阻止的创意属性。请参阅可用属性的完整列表：
+	// https://github.com/InteractiveAdvertisingBureau/AdCOM/blob/main/AdCOM%20v1.0%20FINAL.md#list--creative-attributes-
+	// Google支持。
 	Battr []CreativeAttribute `protobuf:"varint,6,rep,packed,name=battr,enum=admux.openrtb.CreativeAttribute" json:"battr,omitempty"`
 	// Allowlist of content MIME types supported. Popular MIME types include,
 	// but are not limited to "image/jpg", "image/gif" and
 	// "application/x-shockwave-flash".
 	// Supported by Google.
+	// 支持的内容MIME类型白名单。流行的MIME类型包括但不限于
+	// "image/jpg"、"image/gif"和"application/x-shockwave-flash"。
+	// Google支持。
 	Mimes []string `protobuf:"bytes,7,rep,name=mimes" json:"mimes,omitempty"`
 	// Specify if the banner is delivered in the top frame (true)
 	// or in an iframe (false).
 	// Supported by Google.
+	// 指定横幅是否在顶层框架（true）或iframe（false）中投放。
+	// Google支持。
 	Topframe *bool `protobuf:"varint,8,opt,name=topframe" json:"topframe,omitempty"`
 	// Directions in which the banner may expand.
 	// Supported by Google.
+	// 横幅可以扩展的方向。
+	// Google支持。
 	Expdir []ExpandableDirection `protobuf:"varint,9,rep,packed,name=expdir,enum=admux.openrtb.ExpandableDirection" json:"expdir,omitempty"`
 	// List of supported API frameworks for this impression.
 	// If an API is not explicitly listed, it is assumed not to be supported.
 	// Supported by Google.
+	// 此展示支持的API框架列表。
+	// 如果未明确列出API，则假定不支持。
+	// Google支持。
 	Api []APIFramework `protobuf:"varint,10,rep,packed,name=api,enum=admux.openrtb.APIFramework" json:"api,omitempty"`
 	// Relevant only for Banner objects used with a Video object
 	// (Section 3.2.7) in an array of companion ads. Indicates the
 	// companion banner rendering mode relative to the associated
 	// video, where false = concurrent, true = end-card.
 	// Supported by Google.
+	// 仅适用于与Video对象（第3.2.7节）一起使用的Banner对象，
+	// 在伴随广告数组中。指示伴随横幅相对于关联视频的渲染模式，
+	// 其中false = 并发，true = 结束卡。
+	// Google支持。
 	Vcm *bool `protobuf:"varint,16,opt,name=vcm" json:"vcm,omitempty"`
 	// DEPRECATED in OpenRTB 2.4+, REMOVED in 2.6+; prefer the field format.
 	// Maximum width in device independent pixels (DIPS).
 	// Supported by Google.
+	// 在OpenRTB 2.4+中已弃用，在2.6+中已移除；请优先使用format字段。
+	// 设备无关像素（DIPS）中的最大宽度。
+	// Google支持。
 	//
 	// Deprecated: Marked as deprecated in api/idl/openrtb.proto.
 	Wmax *int32 `protobuf:"varint,11,opt,name=wmax" json:"wmax,omitempty"`
 	// DEPRECATED in OpenRTB 2.4+, REMOVED in 2.6+; prefer the field format.
 	// Maximum height in device independent pixels (DIPS).
 	// Supported by Google.
+	// 在OpenRTB 2.4+中已弃用，在2.6+中已移除；请优先使用format字段。
+	// 设备无关像素（DIPS）中的最大高度。
+	// Google支持。
 	//
 	// Deprecated: Marked as deprecated in api/idl/openrtb.proto.
 	Hmax *int32 `protobuf:"varint,12,opt,name=hmax" json:"hmax,omitempty"`
 	// DEPRECATED in OpenRTB 2.4+, REMOVED in 2.6+; prefer the field format.
 	// Minimum width in device independent pixels (DIPS).
 	// Supported by Google.
+	// 在OpenRTB 2.4+中已弃用，在2.6+中已移除；请优先使用format字段。
+	// 设备无关像素（DIPS）中的最小宽度。
+	// Google支持。
 	//
 	// Deprecated: Marked as deprecated in api/idl/openrtb.proto.
 	Wmin *int32 `protobuf:"varint,13,opt,name=wmin" json:"wmin,omitempty"`
 	// DEPRECATED in OpenRTB 2.4+, REMOVED in 2.6+; prefer the field format.
 	// Minimum height in device independent pixels (DIPS).
 	// Supported by Google.
+	// 在OpenRTB 2.4+中已弃用，在2.6+中已移除；请优先使用format字段。
+	// 设备无关像素（DIPS）中的最小高度。
+	// Google支持。
 	//
 	// Deprecated: Marked as deprecated in api/idl/openrtb.proto.
 	Hmin            *int32 `protobuf:"varint,14,opt,name=hmin" json:"hmin,omitempty"`
@@ -6599,6 +6688,7 @@ func (x *BidRequest_Imp_Banner) GetHmin() int32 {
 
 // Indicates a price floor which applies to video or audio creatives within
 // the specified duration range.
+// 指示适用于指定持续时间范围内的视频或音频创意的底价。
 type BidRequest_Imp_DurFloors struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// An integer indicating the low end of a duration range in seconds,
@@ -6606,11 +6696,19 @@ type BidRequest_Imp_DurFloors struct {
 	// indicating any positive duration. Either mindur or maxdur is required,
 	// but not both.
 	// Supported by Google.
+	// 表示持续时间范围低端的整数（以秒为单位），包含。
+	// 如果此值缺失，则低端无限制，表示任何正持续时间。
+	// mindur或maxdur中必须有一个，但不能同时存在。
+	// Google支持。
 	Mindur *int32 `protobuf:"varint,1,opt,name=mindur" json:"mindur,omitempty"`
 	// An integer indicating the high end of a duration range in seconds,
 	// exclusive. If this value is missing, the high end is unbounded. Either
 	// mindur or maxdur is required, but not both.
 	// Supported by Google.
+	// 表示持续时间范围高端的整数（以秒为单位），不包含。
+	// 如果此值缺失，则高端无限制。
+	// mindur或maxdur中必须有一个，但不能同时存在。
+	// Google支持。
 	Maxdur *int32 `protobuf:"varint,2,opt,name=maxdur" json:"maxdur,omitempty"`
 	// Minimum bid for a given impression opportunity, if bidding with a
 	// creative in this duration range, expressed in CPM. For any creatives
@@ -6618,6 +6716,11 @@ type BidRequest_Imp_DurFloors struct {
 	// the Imp level will serve as the default floor. The minimum bid is
 	// expressed in the currency indicated in BidRequest.imp.bidfloorcur.
 	// Supported by Google.
+	// 对于给定的展示机会，如果使用此持续时间范围内的创意进行出价，
+	// 最低出价以CPM表示。对于持续时间超出定义的最小/最大值的任何创意，
+	// Imp级别的bidfloor将作为默认底价。
+	// 最低出价以BidRequest.imp.bidfloorcur中指示的货币表示。
+	// Google支持。
 	Bidfloor      *float64 `protobuf:"fixed64,3,opt,name=bidfloor" json:"bidfloor,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -6688,6 +6791,19 @@ func (x *BidRequest_Imp_DurFloors) GetBidfloor() float64 {
 // banner and/or native by also including as Imp subordinates the Banner
 // and/or Native objects, respectively. However, any given bid for the
 // impression must conform to one of the offered types.
+//
+// OpenRTB 2.0: 此对象表示流内视频展示。
+// 许多字段对于最低可行交易不是必需的，
+// 但包含在内以在需要时提供精细控制。OpenRTB中的视频
+// 通常假定符合VAST标准。因此，通过可选地包含定义这些
+// 伴随广告的Banner对象数组（请参阅第3.2.3节中的Banner对象）
+// 来支持伴随广告的概念。
+//
+// Video作为Imp对象的从属对象存在表明
+// 此展示作为视频类型展示提供。根据发布者的判断，
+// 同一展示也可以通过分别包含Banner和/或Native对象
+// 作为Imp从属对象来提供横幅和/或原生展示。
+// 但是，任何给定的展示出价必须符合提供的类型之一。
 type BidRequest_Imp_Video struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Allowlist of content MIME types supported. Popular MIME types include,
@@ -6695,27 +6811,46 @@ type BidRequest_Imp_Video struct {
 	// "application/x-shockwave-flash".
 	// REQUIRED by the OpenRTB specification: at least 1 element.
 	// Supported by Google.
+	// 支持的内容MIME类型白名单。流行的MIME类型包括但不限于
+	// "image/jpg"、"image/gif"和"application/x-shockwave-flash"。
+	// OpenRTB规范要求：至少1个元素。
+	// Google支持。
 	Mimes []string `protobuf:"bytes,1,rep,name=mimes" json:"mimes,omitempty"`
 	// Minimum video ad duration in seconds.
 	// This field is mutually exclusive with rqddurs; only one of
 	// minduration and rqddurs may be in a bid request.
 	// Supported by Google.
+	// 视频广告的最短持续时间（以秒为单位）。
+	// 此字段与rqddurs互斥；出价请求中只能包含
+	// minduration和rqddurs中的一个。
+	// Google支持。
 	Minduration *int32 `protobuf:"varint,3,opt,name=minduration,def=0" json:"minduration,omitempty"`
 	// Maximum video ad duration in seconds.
 	// This field is mutually exclusive with rqddurs; only one of
 	// maxduration and rqddurs may be in a bid request.
 	// Supported by Google.
+	// 视频广告的最长持续时间（以秒为单位）。
+	// 此字段与rqddurs互斥；出价请求中只能包含
+	// maxduration和rqddurs中的一个。
+	// Google支持。
 	Maxduration *int32 `protobuf:"varint,4,opt,name=maxduration" json:"maxduration,omitempty"`
 	// Indicates the start delay in seconds for pre-roll, mid-roll, or
 	// post-roll ad placements.
 	// Refer to enum StartDelay for generic values.
 	// Supported by Google.
+	// 指示前贴片、中贴片或后贴片广告位的开始延迟（以秒为单位）。
+	// 请参阅StartDelay枚举以获取通用值。
+	// Google支持。
 	Startdelay *int32 `protobuf:"varint,8,opt,name=startdelay" json:"startdelay,omitempty"`
 	// The maximum number of ads that might be served into a dynamic video
 	// ad pod. If poddur is set, but maxseq is unset or 0, you don't have a
 	// restriction on how many ads can serve into a video pod. Google only
 	// supports dynamic pods.
 	// Supported by Google.
+	// 可能投放到动态视频广告pod中的最大广告数量。
+	// 如果设置了poddur但maxseq未设置或为0，则对可以投放到视频pod中的广告数量没有限制。
+	// Google仅支持动态pod。
+	// Google支持。
 	Maxseq *int32 `protobuf:"varint,28,opt,name=maxseq" json:"maxseq,omitempty"`
 	// Indicates the total amount of time in seconds that advertisers
 	// may fill for a dynamic video ad pod. This field refers to the length
@@ -6723,12 +6858,20 @@ type BidRequest_Imp_Video struct {
 	// constraints relating to the slots that make up the pod. If unset, the
 	// ad slot is not part of a pod.
 	// Supported by Google.
+	// 指示广告主可以为动态视频广告pod填充的总时间（以秒为单位）。
+	// 此字段指整个广告插播的长度，而minduration/maxduration/rqddurs
+	// 是与构成pod的广告位相关的约束。如果未设置，则广告位不是pod的一部分。
+	// Google支持。
 	Poddur *int32 `protobuf:"varint,29,opt,name=poddur" json:"poddur,omitempty"`
 	// Array of supported video bid response protocols.
 	// At least one supported protocol must be specified.
 	// Supported by Google.
+	// 支持的视频出价响应协议数组。
+	// 必须指定至少一个支持的协议。
+	// Google支持。
 	Protocols []Protocol `protobuf:"varint,21,rep,packed,name=protocols,enum=admux.openrtb.Protocol" json:"protocols,omitempty"`
 	// Width of the video player in device independent pixels (DIPS).
+	// 视频播放器的宽度（以设备无关像素DIPS为单位）。
 	// Supported by Google.
 	W *int32 `protobuf:"varint,6,opt,name=w" json:"w,omitempty"`
 	// Height of the video player in device independent pixels (DIPS).
@@ -6755,6 +6898,10 @@ type BidRequest_Imp_Video struct {
 	// https://github.com/InteractiveAdvertisingBureau/AdCOM/blob/main/AdCOM%20v1.0%20FINAL.md#list--placement-subtypes---video-
 	// Placement type for the impression.
 	// Supported by Google.
+	// 已弃用。根据IAB的规定，这将在2025年1月移除：
+	// https://github.com/InteractiveAdvertisingBureau/AdCOM/blob/main/AdCOM%20v1.0%20FINAL.md#list--placement-subtypes---video-
+	// 展示的投放类型。
+	// Google支持。
 	//
 	// Deprecated: Marked as deprecated in api/idl/openrtb.proto.
 	Placement *VideoPlacementType `protobuf:"varint,26,opt,name=placement,enum=admux.openrtb.VideoPlacementType" json:"placement,omitempty"`
@@ -6764,20 +6911,32 @@ type BidRequest_Imp_Video struct {
 	// the Video.placement field. May be unset if the publisher did not
 	// declare a video placement type.
 	// Supported by Google.
+	// 发布者为此展示声明的视频投放类型。
+	// 在OpenRTB 2.6中引入，以反映围绕不同类型视频广告投放的更新行业定义。
+	// 此字段取代Video.placement字段。如果发布者未声明视频投放类型，则可能未设置。
+	// Google支持。
 	Plcmt *Plcmt `protobuf:"varint,35,opt,name=plcmt,enum=admux.openrtb.Plcmt,def=0" json:"plcmt,omitempty"`
 	// Indicates if the impression must be linear or nonlinear. If none
 	// specified, assume all are allowed.
 	// Supported by Google.
+	// 指示展示必须是线性的还是非线性的。如果未指定，则假定允许所有类型。
+	// Google支持。
 	Linearity *VideoLinearity `protobuf:"varint,2,opt,name=linearity,enum=admux.openrtb.VideoLinearity" json:"linearity,omitempty"`
 	// Indicates if the player will allow the video to be skipped.
 	// If a bidder sends markup/creative that is itself skippable, the
 	// Bid object should include the attr array with an element of
 	// AD_CAN_BE_SKIPPED indicating skippable video.
 	// Supported by Google.
+	// 指示播放器是否允许跳过视频。
+	// 如果出价者发送本身可跳过的标记/创意，
+	// Bid对象应包含带有AD_CAN_BE_SKIPPED元素的attr数组，指示可跳过视频。
+	// Google支持。
 	Skip *bool `protobuf:"varint,23,opt,name=skip" json:"skip,omitempty"`
 	// Videos of total duration greater than this number of seconds
 	// can be skippable; only applicable if the ad is skippable.
 	// Not supported by Google.
+	// 总持续时间超过此秒数的视频可以跳过；仅适用于广告可跳过的情况。
+	// Google不支持。
 	Skipmin *int32 `protobuf:"varint,24,opt,name=skipmin" json:"skipmin,omitempty"`
 	// Number of seconds a video must play before skipping is
 	// enabled; only applicable if the ad is skippable.
@@ -7854,23 +8013,36 @@ func (x *BidRequest_Imp_Refresh) GetCount() int32 {
 // height and width combination) for a banner impression.
 // These are typically used in an array for an impression where
 // multiple sizes are permitted.
+//
+// OpenRTB 2.4: 此对象表示横幅展示的允许尺寸（高度和宽度组合）。
+// 这些通常用于允许多种尺寸的展示的数组中。
 type BidRequest_Imp_Banner_Format struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Width in device independent pixels (DIPS).
 	// Supported by Google.
+	// 设备无关像素（DIPS）中的宽度。
+	// Google支持。
 	W *int32 `protobuf:"varint,1,opt,name=w" json:"w,omitempty"`
 	// Height in device independent pixels (DIPS).
 	// Supported by Google.
+	// 设备无关像素（DIPS）中的高度。
+	// Google支持。
 	H *int32 `protobuf:"varint,2,opt,name=h" json:"h,omitempty"`
 	// Relative width when expressing size as a ratio.
 	// Not supported by Google.
+	// 以比率表示尺寸时的相对宽度。
+	// Google不支持。
 	Wratio *int32 `protobuf:"varint,3,opt,name=wratio" json:"wratio,omitempty"`
 	// Relative height when expressing size as a ratio.
 	// Not supported by Google.
+	// 以比率表示尺寸时的相对高度。
+	// Google不支持。
 	Hratio *int32 `protobuf:"varint,4,opt,name=hratio" json:"hratio,omitempty"`
 	// The minimum width in device independent pixels (DIPS) at
 	// which the ad will be displayed when the size is expressed as a ratio.
 	// Not supported by Google.
+	// 当尺寸以比率表示时，广告将显示的最小设备无关像素（DIPS）宽度。
+	// Google不支持。
 	Wmin            *int32 `protobuf:"varint,5,opt,name=wmin" json:"wmin,omitempty"`
 	extensionFields protoimpl.ExtensionFields
 	unknownFields   protoimpl.UnknownFields

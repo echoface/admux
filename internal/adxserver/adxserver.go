@@ -4,32 +4,36 @@ import (
 	"context"
 	"io"
 
-	"github.com/echoface/admux/internal/ssadapter"
+	"github.com/echoface/admux/api/gen/admux/openrtb"
+	"github.com/echoface/admux/internal/adxcore"
+	"github.com/echoface/admux/internal/sspadapter"
+	"github.com/echoface/admux/pkg/utils"
 )
 
 type PipelineStage interface {
-	Process(ctx context.Context, data any) (any, error)
+	Process(ctx adxcore.BidRequestCtx) error
 }
 
 type AdxServer struct {
 	stages []PipelineStage
+	appCtx *AdxServerContext
 }
 
-func NewAdxServer() *AdxServer {
+func NewAdxServer(appCtx *AdxServerContext) *AdxServer {
 	return &AdxServer{
 		stages: []PipelineStage{
 			&SSIDValidationStage{},
-			&BidProcessingStage{},
-			// Add more stages as needed
+			&BidProcessingStage{appCtx: appCtx},
 		},
+		appCtx: appCtx,
 	}
 }
 
-func (s *AdxServer) ProcessBid(ctx context.Context, body io.Reader) (interface{}, error) {
-	var currentData interface{} = body
+func (s *AdxServer) ProcessBid(ctx context.Context, bidReq *openrtb.BidRequest) (any, error) {
+	// TODO:(gonghuan) 补全系统内相关基础信息； 将一些配置和用户dmp数据准备好
 
 	for _, stage := range s.stages {
-		result, err := stage.Process(ctx, currentData)
+		err := stage.Process(ctx)
 		if err != nil {
 			return nil, err
 		}
@@ -39,48 +43,39 @@ func (s *AdxServer) ProcessBid(ctx context.Context, body io.Reader) (interface{}
 	return currentData, nil
 }
 
+// TODO: 校验BidRequest 中的请求是否满足要求; 将这个stage独立文件实现
 type SSIDValidationStage struct{}
 
-func (s *SSIDValidationStage) Process(ctx context.Context, data interface{}) (interface{}, error) {
+func (s *SSIDValidationStage) Process(ctx adxcore.BidRequestCtx) error {
 	ssid, ok := ctx.Value("ssid").(string)
 	if !ok || ssid == "" {
-		return nil, ErrMissingSSID
+		return ErrMissingSSID
 	}
 
-	// Use SS adapter to validate and process
-	adapter := ssadapter.NewSSAdapter(ssid)
-	validatedCtx, err := adapter.Validate(ctx)
+	return nil
+}
+
+// TODO: 校验BidRequest 中的请求是否满足要求; 将这个stage独立文件实现
+type BidProcessingStage struct {
+	appCtx *AdxServerContext
+}
+
+func (s *BidProcessingStage) Process(ctx *adxcore.BidRequestCtx) (any, error) {
+	// 创建广播管理器
+	broadcastManager := NewBroadcastManager(s.appCtx)
+
+	// 向所有DSP bidder广播竞价请求
+	responses, err := broadcastManager.BroadcastToBidders(ctx)
 	if err != nil {
 		return nil, err
 	}
+	utils.Ignore(responses)
+	utils.IgnoreErr(err, "broadcast error")
 
-	return map[string]interface{}{
-		"ctx":  validatedCtx,
-		"data": data,
-		"ssid": ssid,
-	}, nil
-}
+	// 选择获胜的出价
 
-type BidProcessingStage struct{}
-
-func (s *BidProcessingStage) Process(ctx context.Context, data interface{}) (interface{}, error) {
-	// For now, return a stub response
-	// TODO: Implement actual bid processing logic
-	return map[string]interface{}{
-		"id": "test-bid-id",
-		"seatbid": []map[string]interface{}{
-			{
-				"bid": []map[string]interface{}{
-					{
-						"id":    "bid-1",
-						"impid": "imp-1",
-						"price": 1.23,
-						"adm":   "<div>Test Ad</div>",
-					},
-				},
-			},
-		},
-	}, nil
+	// 构建最终响应
+	return map[string]any{}, nil
 }
 
 var ErrMissingSSID = &AdxError{Message: "missing ssid parameter", Code: "MISSING_SSID"}
@@ -93,4 +88,3 @@ type AdxError struct {
 func (e *AdxError) Error() string {
 	return e.Message
 }
-
