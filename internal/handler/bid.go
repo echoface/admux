@@ -10,11 +10,13 @@ import (
 
 type BidHandler struct {
 	adxServer *adxserver.AdxServer
+	appCtx    *adxserver.AdxServerContext
 }
 
-func NewBidHandler(adxServer *adxserver.AdxServer) *BidHandler {
+func NewBidHandler(adxServer *adxserver.AdxServer, appCtx *adxserver.AdxServerContext) *BidHandler {
 	return &BidHandler{
 		adxServer: adxServer,
+		appCtx:    appCtx,
 	}
 }
 

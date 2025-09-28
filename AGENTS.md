@@ -49,6 +49,7 @@
 
 ### Technical Stack
 - **Language**: Go 1.24.5
+    - use 'any' replace 'interface{}'
 - **Protocol**: OpenRTB standard
 - **Dependencies**: Google Protobuf v1.36.9
 - **Build System**: Makefile
@@ -165,16 +166,16 @@ make run-tracking
    - Dynamic bidder configuration
 
 3. **Advanced Features**
-   - Machine learning for bid optimization
-   - Real-time analytics dashboard
-   - A/B testing framework
-   - Fraud detection mechanisms
+   - 预留pctr预估服务能力 
 
 4. **Operational Excellence**
    - Comprehensive monitoring
    - Alerting system
    - Performance optimization
    - Disaster recovery procedures
+
+5. **设计如果相关包中包含README相关的内容，阅读并理解其内容** 确保实现符合其设计约束
+    - 每次改动完成后，一定记得完成相关README/Makefile 等内容的更新
 
 ## Critical Dependencies
 
