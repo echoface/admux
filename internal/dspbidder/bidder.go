@@ -1,31 +1,29 @@
 package dspbidder
 
 import (
-	"context"
-	"fmt"
 	"math/rand"
 	"time"
 
-	"github.com/echoface/admux/internal/adxserver"
+	"github.com/echoface/admux/internal/adxcore"
 )
 
 // BaseBidder 基础DSP bidder实现
 type BaseBidder struct {
-	BidderID   string
-	Endpoint   string
-	QPSLimit   int
-	Healthy    bool
-	Timeout    time.Duration
+	BidderID string
+	Endpoint string
+	QPSLimit int
+	Healthy  bool
+	Timeout  time.Duration
 }
 
 // NewBaseBidder 创建基础bidder
 func NewBaseBidder(bidderID, endpoint string, qpsLimit int, timeout time.Duration) *BaseBidder {
 	return &BaseBidder{
-		BidderID:  bidderID,
-		Endpoint:  endpoint,
-		QPSLimit:  qpsLimit,
+		BidderID: bidderID,
+		Endpoint: endpoint,
+		QPSLimit: qpsLimit,
 		Healthy:  true,
-		Timeout:   timeout,
+		Timeout:  timeout,
 	}
 }
 
@@ -45,22 +43,18 @@ func (b *BaseBidder) GetQPSLimit() int {
 }
 
 // SendBidRequest 发送竞价请求到DSP
-func (b *BaseBidder) SendBidRequest(ctx context.Context, bidRequest any) (any, error) {
+func (b *BaseBidder) SendBidRequest(bidRequest *adxcore.BidRequestCtx) ([]*adxcore.BidCandidate, error) {
 	// 模拟DSP响应延迟
 	sleepTime := time.Duration(rand.Intn(100)) * time.Millisecond
 	time.Sleep(sleepTime)
 
 	// 模拟竞价响应
-	return map[string]any{
-		"bidder_id": b.BidderID,
-		"bid": map[string]any{
-			"id":    fmt.Sprintf("bid-%s-%d", b.BidderID, time.Now().UnixNano()),
-			"impid": "imp-1",
-			"price": rand.Float64() * 10, // 随机价格0-10
-			"adm":   fmt.Sprintf("<div>Ad from %s</div>", b.BidderID),
-		},
-		"latency_ms": sleepTime.Milliseconds(),
-	}, nil
+	// 在真实实现中，这里会发送HTTP请求到DSP端点
+	candidate := &adxcore.BidCandidate{
+		Response: nil, // TODO: 创建真实的 OpenRTB BidResponse
+	}
+
+	return []*adxcore.BidCandidate{candidate}, nil
 }
 
 // IsHealthy 检查bidder是否健康

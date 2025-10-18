@@ -74,3 +74,22 @@ func (bm *BroadcastManager) BroadcastToBidders(bidRequest *adxcore.BidRequestCtx
 
 	return responses, nil
 }
+
+// Broadcast implements adxcore.Broadcaster interface
+func (bm *BroadcastManager) Broadcast(ctx *adxcore.BidRequestCtx) ([]*adxcore.BidCandidate, error) {
+	responses, err := bm.BroadcastToBidders(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	// Convert BidResponse to BidCandidate and collect all candidates
+	var allCandidates []*adxcore.BidCandidate
+	for _, response := range responses {
+		if response.Error == nil {
+			allCandidates = append(allCandidates, response.Candidates...)
+		}
+		// TODO: Log errors appropriately instead of ignoring them
+	}
+
+	return allCandidates, nil
+}
