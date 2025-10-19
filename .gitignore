@@ -1,44 +1,95 @@
-# If you prefer the allow list template instead of the deny list, see community template:
-# https://github.com/github/gitignore/blob/main/community/Golang/Go.AllowList.gitignore
-#
-# Binaries for programs and plugins
+# 编译产物
 *.exe
 *.exe~
 *.dll
 *.so
 *.dylib
-bin/
 
-# Test binary, built with `go test -c`
-*.test
+# 二进制文件
+backend/services/*/bin/
+backend/services/*/dist/
 
-# Code coverage profiles and other test artifacts
-*.out
-coverage.*
-*.coverprofile
-profile.cov
-coverage.txt
-coverage.html
-
-# Dependency directories
+# Go 相关
 vendor/
-
-# Go workspace file
-go.work
+*.mod.sum
 go.work.sum
 
-# env file
-.env
+# 前端相关
+node_modules/
+dist/
+build/
+*.tsbuildinfo
 
-# Editor/IDE
+# 日志文件
+*.log
+logs/
+
+# 环境变量文件
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# 配置文件（包含敏感信息）
+config/secrets/
+*.key
+*.pem
+*.p12
+
+# 数据库
+*.db
+*.sqlite
+*.sqlite3
+
+# 临时文件
+tmp/
+temp/
+.tmp/
+
+# IDE 和编辑器
 .vscode/
 .idea/
+*.swp
+*.swo
+*~
 
-# OS files
+# 操作系统
 .DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
 
-# Log files
-*.log
+# Docker
+.dockerignore
 
-# Build artifacts
-dist/
+# 测试覆盖率
+coverage.out
+coverage.html
+*.cover
+
+# 性能分析
+*.prof
+*.pprof
+
+# 监控数据
+data/
+monitoring/data/
+
+# 本地配置
+config/local/
+config/development/
+config/test/
+config/production/
+
+# 备份文件
+*.bak
+*.backup
+
+# 依赖锁文件
+package-lock.json
+yarn.lock
+pnpm-lock.yaml

@@ -1,0 +1,24 @@
+env: development
+server:
+  address: ":8082"
+  timeout: 30s
+
+database:
+  host: localhost
+  port: 5432
+  name: admux_media
+  user: admux
+  password: password
+  max_connections: 20
+
+logging:
+  level: debug
+  format: json
+
+monitoring:
+  enabled: true
+  metrics_path: /metrics
+
+auth:
+  jwt_secret: your-secret-key
+  token_expiry: 24h

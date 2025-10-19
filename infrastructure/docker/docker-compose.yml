@@ -1,0 +1,262 @@
+version: "3.8"
+
+services:
+  # 数据库服务
+  postgres:
+    image: postgres:15-alpine
+    container_name: admux_postgres
+    environment:
+      POSTGRES_DB: admux
+      POSTGRES_USER: admux
+      POSTGRES_PASSWORD: admux_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./scripts/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admux"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Redis 缓存服务
+  redis:
+    image: redis:7-alpine
+    container_name: admux_redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # 后端服务 - ADX 系统
+  adx_system:
+    build:
+      context: .
+      dockerfile: backend/services/adx_system/Dockerfile
+    container_name: admux_adx_system
+    ports:
+      - "8080:8080"
+    environment:
+      - ENV=development
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_NAME=admux_adx
+      - DB_USER=admux
+      - DB_PASSWORD=admux_password
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./backend/services/adx_system/config:/app/config
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # 后端服务 - 事件追踪系统
+  event_tracking:
+    build:
+      context: .
+      dockerfile: backend/services/event_tracking/Dockerfile
+    container_name: admux_event_tracking
+    ports:
+      - "8081:8081"
+    environment:
+      - ENV=development
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_NAME=admux_tracking
+      - DB_USER=admux
+      - DB_PASSWORD=admux_password
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./backend/services/event_tracking/config:/app/config
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8081/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # 后端服务 - 媒体管理平台
+  media_platform:
+    build:
+      context: .
+      dockerfile: backend/services/media_platform/Dockerfile
+    container_name: admux_media_platform
+    ports:
+      - "8082:8082"
+    environment:
+      - ENV=development
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_NAME=admux_media
+      - DB_USER=admux
+      - DB_PASSWORD=admux_password
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./backend/services/media_platform/config:/app/config
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8082/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # 后端服务 - 广告管理平台
+  ad_platform:
+    build:
+      context: .
+      dockerfile: backend/services/ad_platform/Dockerfile
+    container_name: admux_ad_platform
+    ports:
+      - "8083:8083"
+    environment:
+      - ENV=development
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_NAME=admux_ad
+      - DB_USER=admux
+      - DB_PASSWORD=admux_password
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./backend/services/ad_platform/config:/app/config
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8083/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # 后端服务 - DSP 系统
+  dsp_system:
+    build:
+      context: .
+      dockerfile: backend/services/dsp_system/Dockerfile
+    container_name: admux_dsp_system
+    ports:
+      - "8084:8084"
+    environment:
+      - ENV=development
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_NAME=admux_dsp
+      - DB_USER=admux
+      - DB_PASSWORD=admux_password
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./backend/services/dsp_system/config:/app/config
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8084/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # 前端服务 - 管理后台
+  admin_dashboard:
+    build:
+      context: ./frontend/admin_dashboard
+      dockerfile: Dockerfile
+    container_name: admux_admin_dashboard
+    ports:
+      - "3000:80"
+    environment:
+      - REACT_APP_API_URL=http://localhost:8083
+    depends_on:
+      - ad_platform
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:80"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # 前端服务 - 发布商门户
+  publisher_portal:
+    build:
+      context: ./frontend/publisher_portal
+      dockerfile: Dockerfile
+    container_name: admux_publisher_portal
+    ports:
+      - "3001:80"
+    environment:
+      - VITE_API_URL=http://localhost:8082
+    depends_on:
+      - media_platform
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:80"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # 监控服务 - Prometheus
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: admux_prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./platform/monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.path=/prometheus"
+      - "--web.console.libraries=/etc/prometheus/console_libraries"
+      - "--web.console.templates=/etc/prometheus/consoles"
+
+  # 监控服务 - Grafana
+  grafana:
+    image: grafana/grafana:latest
+    container_name: admux_grafana
+    ports:
+      - "3002:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./platform/monitoring/grafana/dashboards:/etc/grafana/provisioning/dashboards
+      - ./platform/monitoring/grafana/datasources:/etc/grafana/provisioning/datasources
+    depends_on:
+      - prometheus
+
+volumes:
+  postgres_data:
+  redis_data:
+  prometheus_data:
+  grafana_data:
+
+networks:
+  default:
+    name: admux_network
+    driver: bridge

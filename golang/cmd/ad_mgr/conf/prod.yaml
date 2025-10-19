@@ -1,0 +1,24 @@
+env: production
+server:
+  address: ":8083"
+  timeout: 30s
+
+database:
+  host: postgres-service
+  port: 5432
+  name: admux_media
+  user: admux
+  password: ${DB_PASSWORD}
+  max_connections: 100
+
+logging:
+  level: info
+  format: json
+
+monitoring:
+  enabled: true
+  metrics_path: /metrics
+
+auth:
+  jwt_secret: ${JWT_SECRET}
+  token_expiry: 8h

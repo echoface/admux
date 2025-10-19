@@ -1,0 +1,23 @@
+env: test
+server:
+  address: ":8083"
+  timeout: 10s
+
+database:
+  host: localhost
+  port: 5432
+  name: admux_media_test
+  user: test_user
+  password: test_password
+  max_connections: 5
+
+logging:
+  level: warn
+  format: text
+
+monitoring:
+  enabled: false
+
+auth:
+  jwt_secret: test-secret
+  token_expiry: 1h

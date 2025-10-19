@@ -1,0 +1,95 @@
+# ADMUX Tracking Server Production Environment Configuration
+
+server:
+  port: 8081
+  read_timeout: 100ms
+  write_timeout: 100ms
+  max_connections: 5000
+  enable_pprof: false
+  shutdown_timeout: 30s
+
+logging:
+  level: warn
+  output: file
+  file_path: /app/logs/tracking-server.log
+  max_size: 500MB
+  max_backups: 50
+  max_age: 30
+  compress: true
+  enable_json: true
+
+database:
+  driver: "mysql"
+  dsn: ${TRACKING_DB_DSN}
+  max_open_conns: 100
+  max_idle_conns: 20
+  conn_max_lifetime: 30m
+  conn_max_idle_time: 10m
+
+redis:
+  addr: ${REDIS_URL}
+  password: ${REDIS_PASSWORD}
+  db: 1
+  pool_size: 50
+  min_idle_conns: 10
+  dial_timeout: 5s
+  read_timeout: 1s
+  write_timeout: 1s
+
+monitoring:
+  prometheus:
+    enabled: true
+    endpoint: /metrics
+    namespace: admux
+    subsystem: tracking
+
+  health_check:
+    enabled: true
+    endpoint: /health
+    interval: 30s
+    timeout: 5s
+
+tracking:
+  # 事件存储配置
+  event_batch_size: 1000
+  event_flush_interval: 1s
+  event_retention_days: 90
+
+  # 点击监测配置
+  click_tracking:
+    enabled: true
+    redirect_delay: 100ms
+    max_redirects: 10
+
+  # 曝光监测配置
+  impression_tracking:
+    enabled: true
+    cache_ttl: 72h
+
+  # 转化监测配置
+  conversion_tracking:
+    enabled: true
+    attribution_window: 30d
+    postback_url: ${POSTBACK_URL}
+
+  # 反作弊配置
+  fraud_detection:
+    enabled: true
+    ip_blacklist_ttl: 24h
+    user_agent_blacklist_ttl: 12h
+
+security:
+  enable_rate_limit: true
+  rate_limit:
+    requests_per_minute: 50000
+    burst: 5000
+  enable_cors: true
+  cors:
+    allowed_origins: ${ALLOWED_ORIGINS}
+    allowed_methods: ["GET", "POST", "OPTIONS"]
+    allowed_headers: ["Content-Type", "Authorization", "X-Request-ID", "User-Agent"]
+
+feature_flags:
+  enable_debug_mode: false
+  enable_event_logging: false
+  enable_performance_profiling: false
