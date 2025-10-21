@@ -9,9 +9,9 @@ import (
 type (
 	// Supply Side Adapter interface
 	ISSPAdapter interface {
-		BuildBidRequest(ctx *BidRequestCtx, data []byte) error
+		ToInternalBidRequest(ctx *BidRequestCtx, data []byte) error
 
-		PackResponse(ctx *BidRequestCtx)
+		PackSSPResponse(ctx *BidRequestCtx) ([]byte, error)
 	}
 
 	// PipelineStage interface for bid request processing pipeline
@@ -28,7 +28,8 @@ type (
 	BidRequestCtx struct {
 		context.Context
 
-		Request    *admux_rtb.BidRequest
+		Request *admux_rtb.BidRequest // 由ssp adapter 提供
+
 		candidates []*BidCandidate // Fixed typo: was "canidates"
 	}
 
@@ -36,20 +37,4 @@ type (
 	BidCandidate struct {
 		Response *admux_rtb.BidResponse
 	}
-
-	// AdxError represents an ADX specific error
-	AdxError struct {
-		Message string
-		Code    string
-	}
-)
-
-// Error method for AdxError
-func (e *AdxError) Error() string {
-	return e.Message
-}
-
-// Predefined errors
-var (
-	ErrMissingSSID = &AdxError{Message: "missing ssid parameter", Code: "MISSING_SSID"}
 )

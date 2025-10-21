@@ -5,14 +5,9 @@ import (
 	"fmt"
 )
 
-type SSPAdapter interface {
-	Validate(ctx context.Context) (context.Context, error)
-	Process(ctx context.Context, data interface{}) (interface{}, error)
-}
-
 type SSPAdapterFactory struct{}
 
-func NewSSPAdapter(ssid string) SSPAdapter {
+func NewSSPAdapterStub(ssid string) *StubSSPAdapter {
 	// For now, return a stub adapter
 	// In real implementation, this would return different adapters based on ssid
 	return &StubSSPAdapter{ssid: ssid}
@@ -33,8 +28,8 @@ func (a *StubSSPAdapter) Validate(ctx context.Context) (context.Context, error) 
 	ctx = context.WithValue(ctx, "validated_ssid", a.ssid)
 	ctx = context.WithValue(ctx, "adapter_type", "stub")
 	ctx = context.WithValue(ctx, "ssid_config", map[string]interface{}{
-		"timeout_ms":     100,
-		"max_bid_price":  5.0,
+		"timeout_ms":      100,
+		"max_bid_price":   5.0,
 		"allowed_formats": []string{"banner", "video"},
 	})
 
