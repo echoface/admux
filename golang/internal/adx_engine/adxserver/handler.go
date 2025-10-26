@@ -7,6 +7,7 @@ import (
 	"net/http"
 
 	admux_rtb "github.com/echoface/admux/pkg/protogen/admux"
+	"github.com/echoface/admux/internal/adx_engine/adxcore"
 	"github.com/gin-gonic/gin"
 )
 
@@ -23,21 +24,45 @@ func NewBidHandler(adxServer *AdxServer, appCtx *AdxServerContext) *BidHandler {
 }
 
 func (h *BidHandler) HandleBidRequest(c *gin.Context) {
-	// Extract request context
+	// Extract request context with SSP ID
 	ctx := extractRequestContext(c)
 
-	// Parse request body as OpenRTB BidRequest
-	bidReq, err := parseBidRequest(c.Request.Body)
+	// Get SSP adapter and configuration based on SSP ID
+	sspAdapter, sspConfig, err := h.adxServer.GetSSPAdapter(ctx)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
-			"error":   "Invalid bid request format",
+			"error":   "Invalid SSP configuration",
+			"details": err.Error(),
+		})
+		return
+	}
+
+	// Read request body
+	bodyData, err := io.ReadAll(c.Request.Body)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error":   "Failed to read request body",
+			"details": err.Error(),
+		})
+		return
+	}
+	defer c.Request.Body.Close()
+
+	// Create bid request context
+	bidCtx := adxcore.NewBidRequestCtx(ctx, nil)
+	bidCtx.SetSSPInfo(sspConfig.ID, sspConfig)
+
+	// Convert SSP-specific request to internal format using adapter
+	if err := sspAdapter.ToInternalBidRequest(bidCtx, bodyData); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error":   "Failed to parse bid request",
 			"details": err.Error(),
 		})
 		return
 	}
 
 	// Process the bid request through the pipeline
-	response, err := h.adxServer.ProcessBid(ctx, bidReq)
+	_, err = h.adxServer.ProcessBid(bidCtx.Context, bidCtx.Request)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error":   "Failed to process bid request",
@@ -46,7 +71,18 @@ func (h *BidHandler) HandleBidRequest(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, response)
+	// Convert internal response to SSP-specific format
+	sspResponse, err := sspAdapter.PackSSPResponse(bidCtx)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error":   "Failed to format response",
+			"details": err.Error(),
+		})
+		return
+	}
+
+	// Return SSP-specific response
+	c.Data(http.StatusOK, "application/json", sspResponse)
 }
 
 // parseBidRequest parses the request body into an OpenRTB BidRequest
@@ -71,10 +107,18 @@ func parseBidRequest(body io.ReadCloser) (*admux_rtb.BidRequest, error) {
 func extractRequestContext(c *gin.Context) context.Context {
 	ctx := context.Background()
 
-	// Extract ssid from query parameter
-	ssid := c.Query("ssid")
-	if ssid != "" {
-		ctx = context.WithValue(ctx, "ssid", ssid)
+	// Extract SSP ID from query parameter (preferred) or header
+	sspID := c.Query("sspid")
+	if sspID == "" {
+		sspID = c.GetHeader("X-SSP-ID")
+	}
+	if sspID == "" {
+		// Fallback to ssid for backward compatibility
+		sspID = c.Query("ssid")
+	}
+
+	if sspID != "" {
+		ctx = context.WithValue(ctx, "sspid", sspID)
 	}
 
 	// Extract client IP

@@ -40,22 +40,22 @@ type Broadcaster interface {
 
 // SetCandidates sets the bid candidates in the context
 func (ctx *BidRequestCtx) SetCandidates(candidates []*BidCandidate) {
-	ctx.candidates = candidates
+	ctx.Candidates = candidates
 }
 
 // GetCandidates returns the bid candidates from the context
 func (ctx *BidRequestCtx) GetCandidates() []*BidCandidate {
-	return ctx.candidates
+	return ctx.Candidates
 }
 
 // AddCandidate adds a single bid candidate to the context
 func (ctx *BidRequestCtx) AddCandidate(candidate *BidCandidate) {
-	ctx.candidates = append(ctx.candidates, candidate)
+	ctx.Candidates = append(ctx.Candidates, candidate)
 }
 
 // ClearCandidates removes all candidates from the context
 func (ctx *BidRequestCtx) ClearCandidates() {
-	ctx.candidates = nil
+	ctx.Candidates = nil
 }
 
 // GetSSID safely extracts SSID from context

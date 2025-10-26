@@ -12,6 +12,7 @@ import (
 
 	"github.com/echoface/admux/internal/adx_engine/adxcore"
 	"github.com/echoface/admux/internal/adx_engine/config"
+	"github.com/echoface/admux/internal/adx_engine/sspadapter"
 )
 
 // AdxServerContext represents the global application context for the ADX server
@@ -29,8 +30,11 @@ type AdxServerContext struct {
 	// Metrics
 	MetricsRegistry *prometheus.Registry
 
-	// SSP adapters
+	// SSP adapters (legacy)
 	SSPAdapters map[string]SSPAdapter
+
+	// SSP factory for new adapter architecture
+	SSPFactory *sspadapter.SSPAdapterFactory
 
 	// DSP bidders
 	DSPBidders map[string]DSPBidder
@@ -226,4 +230,20 @@ func (ac *AdxServerContext) GetHTTPClient() *http.Client {
 // GetLogger returns the application logger
 func (ac *AdxServerContext) GetLogger() *log.Logger {
 	return ac.Logger
+}
+
+// GetSSPFactory returns the SSP adapter factory
+// 获取SSP适配器工厂
+func (ac *AdxServerContext) GetSSPFactory() *sspadapter.SSPAdapterFactory {
+	ac.mu.RLock()
+	defer ac.mu.RUnlock()
+	return ac.SSPFactory
+}
+
+// SetSSPFactory sets the SSP adapter factory
+// 设置SSP适配器工厂
+func (ac *AdxServerContext) SetSSPFactory(factory *sspadapter.SSPAdapterFactory) {
+	ac.mu.Lock()
+	defer ac.mu.Unlock()
+	ac.SSPFactory = factory
 }

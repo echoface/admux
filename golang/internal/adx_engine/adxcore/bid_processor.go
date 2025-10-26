@@ -28,10 +28,7 @@ func NewBidProcessor(broadcaster Broadcaster) *BidProcessor {
 // ProcessBid processes a bid request through all stages
 func (bp *BidProcessor) ProcessBid(ctx context.Context, bidReq *admux_rtb.BidRequest) (*BidRequestCtx, error) {
 	// Create bid request context
-	bidCtx := &BidRequestCtx{
-		Context: ctx,
-		Request: bidReq,
-	}
+	bidCtx := NewBidRequestCtx(ctx, bidReq)
 
 	// Process through all stages
 	for _, stage := range bp.stages {
