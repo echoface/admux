@@ -4,43 +4,91 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/bytedance/gg/gslice"
+
 	"github.com/echoface/admux/internal/adx_engine/adxcore"
 	"github.com/echoface/admux/internal/adx_engine/config"
-	admux_rtb "github.com/echoface/admux/pkg/protogen/admux"
 )
 
 type AdxServer struct {
-	stages []adxcore.PipelineStage
 	appCtx *AdxServerContext
 }
 
 func NewAdxServer(appCtx *AdxServerContext) *AdxServer {
 	return &AdxServer{
-		stages: []adxcore.PipelineStage{
-			&adxcore.SSIDValidationStage{},
-			&adxcore.BidProcessingStage{Broadcaster: NewBroadcastManager(appCtx)},
-		},
 		appCtx: appCtx,
 	}
 }
 
-func (s *AdxServer) ProcessBid(ctx context.Context, bidReq *admux_rtb.BidRequest) (any, error) {
+func (s *AdxServer) ProcessBid(bixCtx *adxcore.BidRequestCtx) (err error) {
 	// Create bid request context
-	bidCtx := &adxcore.BidRequestCtx{
-		Context: ctx,
-		Request: bidReq,
+
+	// 1. 特征补全
+	if err := s.completeFeatures(bixCtx); err != nil {
+		return fmt.Errorf("completeFeatures fail:%w", err)
 	}
 
-	// Process through pipeline stages
-	for _, stage := range s.stages {
-		err := stage.Process(bidCtx)
-		if err != nil {
-			return nil, err
-		}
+	// 2. DSP targeting 定向，找出本次流量需要请求哪些DSP需要竞价调用
+	var bidders []*adxcore.Bidder
+	if bidders, err = s.targetingBidders(bixCtx); err != nil {
+		return fmt.Errorf("targetingBidders fail:%w", err)
+	}
+
+	// 3. DSP竞价广播
+	if err := s.broadcast(bixCtx, bidders); err != nil {
+		return fmt.Errorf("broadcast fail:%w", err)
+	}
+
+	// 4. 素材Collector
+	if err := s.broadcast(bixCtx, bidders); err != nil {
+		return fmt.Errorf("broadcast fail:%w", err)
+	}
+
+	// 5. 候选Filters
+	// 串并过滤支持；编排后执行
+	if err := s.filterCanidates(bixCtx); err != nil {
+		return fmt.Errorf("filterCanidates fail:%w", err)
+	}
+
+	// 6. Ranking: 找出ECPM最高的竞价（最有可能获得最大利润）的候选广告
+	// ecpm * winrate
+	if err := s.rankingCandidates(bixCtx); err != nil {
+		return fmt.Errorf("rankingCandidates fail:%s", err)
 	}
 
 	// Return processing results
-	return s.buildResponse(bidCtx), nil
+	_ = s.buildResponse(bixCtx)
+	return nil
+}
+
+func (s *AdxServer) completeFeatures(ctx *adxcore.BidRequestCtx) error {
+	// 这里通过各种feature provider 补全特征数据
+
+	return nil
+}
+
+func (s *AdxServer) targetingBidders(ctx *adxcore.BidRequestCtx) ([]*adxcore.Bidder, error) {
+	return make([]*adxcore.Bidder, 0), nil
+}
+
+func (s *AdxServer) broadcast(ctx *adxcore.BidRequestCtx, bidders []*adxcore.Bidder) error {
+	// 广播每一个参与竞价方，并构建生成多个Canidates
+
+	return nil
+}
+
+func (s *AdxServer) filterCanidates(ctx *adxcore.BidRequestCtx) error {
+	canidates := ctx.GetCandidates()
+	ctx.Candidates = make([]*adxcore.BidCandidate, 0, len(canidates)/2)
+
+	return nil
+}
+
+func (s *AdxServer) rankingCandidates(ctx *adxcore.BidRequestCtx) error {
+	gslice.SortBy(ctx.GetCandidates(), func(l, r *adxcore.BidCandidate) bool {
+		return l.CPMPrice < r.CPMPrice
+	})
+	return nil
 }
 
 // GetSSPAdapter retrieves SSP adapter and configuration based on context

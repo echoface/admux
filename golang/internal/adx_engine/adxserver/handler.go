@@ -6,8 +6,8 @@ import (
 	"io"
 	"net/http"
 
-	admux_rtb "github.com/echoface/admux/pkg/protogen/admux"
 	"github.com/echoface/admux/internal/adx_engine/adxcore"
+	admux_rtb "github.com/echoface/admux/pkg/protogen/admux"
 	"github.com/gin-gonic/gin"
 )
 
@@ -62,8 +62,7 @@ func (h *BidHandler) HandleBidRequest(c *gin.Context) {
 	}
 
 	// Process the bid request through the pipeline
-	_, err = h.adxServer.ProcessBid(bidCtx.Context, bidCtx.Request)
-	if err != nil {
+	if err = h.adxServer.ProcessBid(bidCtx); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error":   "Failed to process bid request",
 			"details": err.Error(),

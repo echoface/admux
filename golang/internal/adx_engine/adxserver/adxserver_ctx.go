@@ -2,7 +2,6 @@ package adxserver
 
 import (
 	"context"
-	"log"
 	"net/http"
 	"sync"
 	"time"
@@ -10,9 +9,9 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/prometheus/client_golang/prometheus"
 
-	"github.com/echoface/admux/internal/adx_engine/adxcore"
 	"github.com/echoface/admux/internal/adx_engine/config"
 	"github.com/echoface/admux/internal/adx_engine/sspadapter"
+	"github.com/echoface/admux/pkg/logger"
 )
 
 // AdxServerContext represents the global application context for the ADX server
@@ -36,9 +35,6 @@ type AdxServerContext struct {
 	// SSP factory for new adapter architecture
 	SSPFactory *sspadapter.SSPAdapterFactory
 
-	// DSP bidders
-	DSPBidders map[string]DSPBidder
-
 	// HTTP client for external API calls
 	HTTPClient *http.Client
 
@@ -50,7 +46,7 @@ type AdxServerContext struct {
 	mu sync.RWMutex
 
 	// Logger
-	Logger *log.Logger
+	Logger logger.Logger
 
 	// Health status
 	IsHealthy bool
@@ -66,20 +62,6 @@ type SSPAdapter interface {
 	ConvertFromOpenRTB(data any) (any, error)
 	// GetSSPID returns the SSP identifier
 	GetSSPID() string
-}
-
-// DSPBidder interface for DSP integration
-type DSPBidder interface {
-	// GetBidderID returns the bidder identifier
-	GetBidderID() string
-	// GetEndpoint returns the bidder endpoint URL
-	GetEndpoint() string
-	// GetQPSLimit returns the QPS limit for this bidder
-	GetQPSLimit() int
-	// IsHealthy returns the health status of the bidder
-	IsHealthy() bool
-	// SendBidRequest sends bid request to DSP
-	SendBidRequest(bidRequest *adxcore.BidRequestCtx) ([]*adxcore.BidCandidate, error)
 }
 
 // NewAppContext creates and initializes a new application context
@@ -118,11 +100,10 @@ func NewAppContext(cfg *config.ServerConfig) *AdxServerContext {
 		Router:          router,
 		MetricsRegistry: prometheus.NewRegistry(),
 		SSPAdapters:     make(map[string]SSPAdapter),
-		DSPBidders:      make(map[string]DSPBidder),
 		HTTPClient:      httpClient,
 		ShutdownCtx:     shutdownCtx,
 		ShutdownCancel:  shutdownCancel,
-		Logger:          log.Default(),
+		Logger:          logger.Default,
 		IsHealthy:       true,
 	}
 
@@ -144,45 +125,6 @@ func (ac *AdxServerContext) GetSSPAdapter(sspID string) (SSPAdapter, bool) {
 	return adapter, exists
 }
 
-// RegisterDSPBidder registers a new DSP bidder
-func (ac *AdxServerContext) RegisterDSPBidder(bidder DSPBidder) {
-	ac.mu.Lock()
-	defer ac.mu.Unlock()
-	ac.DSPBidders[bidder.GetBidderID()] = bidder
-}
-
-// GetDSPBidder retrieves a DSP bidder by ID
-func (ac *AdxServerContext) GetDSPBidder(bidderID string) (DSPBidder, bool) {
-	ac.mu.RLock()
-	defer ac.mu.RUnlock()
-	bidder, exists := ac.DSPBidders[bidderID]
-	return bidder, exists
-}
-
-// GetAllDSPBidders returns all registered DSP bidders
-func (ac *AdxServerContext) GetAllDSPBidders() []DSPBidder {
-	ac.mu.RLock()
-	defer ac.mu.RUnlock()
-	bidders := make([]DSPBidder, 0, len(ac.DSPBidders))
-	for _, bidder := range ac.DSPBidders {
-		bidders = append(bidders, bidder)
-	}
-	return bidders
-}
-
-// GetHealthyDSPBidders returns all healthy DSP bidders
-func (ac *AdxServerContext) GetHealthyDSPBidders() []DSPBidder {
-	ac.mu.RLock()
-	defer ac.mu.RUnlock()
-	healthyBidders := make([]DSPBidder, 0)
-	for _, bidder := range ac.DSPBidders {
-		if bidder.IsHealthy() {
-			healthyBidders = append(healthyBidders, bidder)
-		}
-	}
-	return healthyBidders
-}
-
 // SetHealthStatus sets the overall health status of the application
 func (ac *AdxServerContext) SetHealthStatus(healthy bool) {
 	ac.mu.Lock()
@@ -202,7 +144,7 @@ func (ac *AdxServerContext) Shutdown() {
 	ac.mu.Lock()
 	defer ac.mu.Unlock()
 
-	ac.Logger.Println("Initiating graceful shutdown...")
+	ac.Logger.Info("Initiating graceful shutdown...")
 	ac.IsHealthy = false
 
 	if ac.ShutdownCancel != nil {
@@ -214,7 +156,7 @@ func (ac *AdxServerContext) Shutdown() {
 		ac.HTTPClient.CloseIdleConnections()
 	}
 
-	ac.Logger.Println("Graceful shutdown completed")
+	ac.Logger.Info("Graceful shutdown completed")
 }
 
 // GetMetricsRegistry returns the Prometheus metrics registry
@@ -228,7 +170,7 @@ func (ac *AdxServerContext) GetHTTPClient() *http.Client {
 }
 
 // GetLogger returns the application logger
-func (ac *AdxServerContext) GetLogger() *log.Logger {
+func (ac *AdxServerContext) GetLogger() logger.Logger {
 	return ac.Logger
 }
 
