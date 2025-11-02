@@ -27,17 +27,12 @@ func TestBroadcastIntegration(t *testing.T) {
 	// 创建广播管理器
 	bm := NewBroadcastManager(appCtx)
 
-	// 注册真实的DSP bidder
-	factory := adxcore.GetGlobalBidderFactory()
-
-	// 注册多个bidder
-	bidder1 := dspbidder.NewBaseBidder("dsp-1", "http://dsp1.com", 100, 2000*time.Millisecond)
-	bidder2 := dspbidder.NewBaseBidder("dsp-2", "http://dsp2.com", 100, 2000*time.Millisecond)
-	bidder3 := dspbidder.NewBaseBidder("dsp-3", "http://dsp3.com", 100, 2000*time.Millisecond)
-
-	factory.RegisterBidder(bidder1)
-	factory.RegisterBidder(bidder2)
-	factory.RegisterBidder(bidder3)
+	// 创建模拟bidder列表
+	bidders := []adxcore.Bidder{
+		dspbidder.NewBaseBidder("dsp-1", "http://dsp1.com", 100, 2000*time.Millisecond),
+		dspbidder.NewBaseBidder("dsp-2", "http://dsp2.com", 100, 2000*time.Millisecond),
+		dspbidder.NewBaseBidder("dsp-3", "http://dsp3.com", 100, 2000*time.Millisecond),
+	}
 
 	// 创建竞价请求上下文
 	bidRequest := adxcore.NewBidRequestCtx(ctx, &admux_rtb.BidRequest{
@@ -46,7 +41,7 @@ func TestBroadcastIntegration(t *testing.T) {
 
 	// 执行广播
 	startTime := time.Now()
-	candidates, err := bm.Broadcast(bidRequest)
+	candidates, err := bm.BroadcastWithBidders(bidRequest, bidders)
 	elapsed := time.Since(startTime)
 
 	// 验证结果
@@ -90,10 +85,8 @@ func TestBroadcastConcurrent(t *testing.T) {
 	// 创建广播管理器
 	bm := NewBroadcastManager(appCtx)
 
-	// 注册多个bidder
-	factory := adxcore.GetGlobalBidderFactory()
-
-	// 注册10个bidder来测试并发控制
+	// 创建模拟bidder列表（10个bidder来测试并发控制）
+	bidders := make([]adxcore.Bidder, 0, 10)
 	for i := 0; i < 10; i++ {
 		bidder := dspbidder.NewBaseBidder(
 			"concurrent-dsp-"+string(rune('a'+i)),
@@ -101,7 +94,7 @@ func TestBroadcastConcurrent(t *testing.T) {
 			100,
 			1000*time.Millisecond,
 		)
-		factory.RegisterBidder(bidder)
+		bidders = append(bidders, bidder)
 	}
 
 	// 创建竞价请求上下文
@@ -111,7 +104,7 @@ func TestBroadcastConcurrent(t *testing.T) {
 
 	// 执行广播
 	startTime := time.Now()
-	candidates, err := bm.Broadcast(bidRequest)
+	candidates, err := bm.BroadcastWithBidders(bidRequest, bidders)
 	elapsed := time.Since(startTime)
 
 	// 验证结果
@@ -140,12 +133,10 @@ func TestBroadcastHealthCheck(t *testing.T) {
 	// 创建广播管理器
 	bm := NewBroadcastManager(appCtx)
 
-	// 注册bidder
-	factory := adxcore.GetGlobalBidderFactory()
-
-	// 注册健康的bidder
-	healthyBidder := dspbidder.NewBaseBidder("healthy-dsp", "http://healthy-dsp.com", 100, 2000*time.Millisecond)
-	factory.RegisterBidder(healthyBidder)
+	// 创建模拟bidder列表
+	bidders := []adxcore.Bidder{
+		dspbidder.NewBaseBidder("healthy-dsp", "http://healthy-dsp.com", 100, 2000*time.Millisecond),
+	}
 
 	// 创建竞价请求上下文
 	bidRequest := adxcore.NewBidRequestCtx(ctx, &admux_rtb.BidRequest{
@@ -154,7 +145,7 @@ func TestBroadcastHealthCheck(t *testing.T) {
 
 	// 多次执行广播来测试健康检查
 	for i := 0; i < 3; i++ {
-		candidates, err := bm.Broadcast(bidRequest)
+		candidates, err := bm.BroadcastWithBidders(bidRequest, bidders)
 		assert.NoError(t, err)
 		assert.NotNil(t, candidates)
 	}

@@ -147,6 +147,19 @@ make run-tracking
 - Integration tests for bidding flow
 - Performance testing for high QPS scenarios
 - Protocol compliance validation
+- use `github.com/bytedance/mockey` as mock framework
+    ```
+    MockGeneric(FooGeneric[string]).Return("MOCKED!").Build()
+    Mock(A.FooVariadic).Return("MOCKED!").Build()
+    Mock(Foo).To(func(in string) string { return "MOCKED!" }).Build()
+
+    PatchConvey("mock 1", t, func() {
+		Mock(Foo).Return("MOCKED-1!").Build() // mock 
+		res := Foo("anything")                // invoke
+		So(res, ShouldEqual, "MOCKED-1!")     // assert
+	})
+    
+    ``````
 
 ### Deployment Considerations
 - Containerized deployment recommended

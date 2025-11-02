@@ -38,13 +38,13 @@ func NewBroadcastManager(appCtx *AdxServerContext) *BroadcastManager {
 	}
 }
 
-// BroadcastToBidders 向所有健康的DSP bidder广播竞价请求
-func (bm *BroadcastManager) BroadcastToBidders(bidRequest *adxcore.BidRequestCtx) ([]BidResponse, error) {
+// BroadcastToBidders 向定向的DSP bidder广播竞价请求
+func (bm *BroadcastManager) BroadcastToBidders(bidRequest *adxcore.BidRequestCtx, bidders []adxcore.Bidder) ([]BidResponse, error) {
 	// 记录请求指标
 	bm.metrics.RecordRequest()
 
-	// 获取所有健康的bidder
-	healthyBidders := bm.getHealthyBidders()
+	// 过滤健康的bidder
+	healthyBidders := bm.filterHealthyBidders(bidders)
 	if len(healthyBidders) == 0 {
 		return nil, nil
 	}
@@ -80,9 +80,9 @@ func (bm *BroadcastManager) BroadcastToBidders(bidRequest *adxcore.BidRequestCtx
 	return responses, nil
 }
 
-// Broadcast implements adxcore.Broadcaster interface
-func (bm *BroadcastManager) Broadcast(ctx *adxcore.BidRequestCtx) ([]*adxcore.BidCandidate, error) {
-	responses, err := bm.BroadcastToBidders(ctx)
+// BroadcastWithBidders 向指定的bidder列表广播竞价请求
+func (bm *BroadcastManager) BroadcastWithBidders(ctx *adxcore.BidRequestCtx, bidders []adxcore.Bidder) ([]*adxcore.BidCandidate, error) {
+	responses, err := bm.BroadcastToBidders(ctx, bidders)
 	if err != nil {
 		return nil, err
 	}
@@ -115,13 +115,11 @@ func (bm *BroadcastManager) Broadcast(ctx *adxcore.BidRequestCtx) ([]*adxcore.Bi
 	return allCandidates, nil
 }
 
-// getHealthyBidders 获取健康的bidder列表
-func (bm *BroadcastManager) getHealthyBidders() []adxcore.Bidder {
-	factory := adxcore.GetGlobalBidderFactory()
-	allBidders := factory.GetAllBidders()
-
-	healthyBidders := make([]adxcore.Bidder, 0, len(allBidders))
-	for bidderID, bidder := range allBidders {
+// filterHealthyBidders 过滤健康的bidder列表
+func (bm *BroadcastManager) filterHealthyBidders(bidders []adxcore.Bidder) []adxcore.Bidder {
+	healthyBidders := make([]adxcore.Bidder, 0, len(bidders))
+	for _, bidder := range bidders {
+		bidderID := bidder.GetInfo().ID
 		if bm.healthChecker.IsHealthy(bidderID) && bm.circuitBreaker.Allow() {
 			healthyBidders = append(healthyBidders, bidder)
 		}
