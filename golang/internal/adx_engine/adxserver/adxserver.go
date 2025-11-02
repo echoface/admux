@@ -28,7 +28,7 @@ func (s *AdxServer) ProcessBid(bixCtx *adxcore.BidRequestCtx) (err error) {
 	}
 
 	// 2. DSP targeting 定向，找出本次流量需要请求哪些DSP需要竞价调用
-	var bidders []*adxcore.Bidder
+	var bidders []adxcore.Bidder
 	if bidders, err = s.targetingBidders(bixCtx); err != nil {
 		return fmt.Errorf("targetingBidders fail:%w", err)
 	}
@@ -67,12 +67,24 @@ func (s *AdxServer) completeFeatures(ctx *adxcore.BidRequestCtx) error {
 }
 
 // targetingBidders 根据各bidder 和 ssp的要求，得到最终需要广播的竞价方
-func (s *AdxServer) targetingBidders(ctx *adxcore.BidRequestCtx) ([]*adxcore.Bidder, error) {
-	return make([]*adxcore.Bidder, 0), nil
+func (s *AdxServer) targetingBidders(ctx *adxcore.BidRequestCtx) ([]adxcore.Bidder, error) {
+	return make([]adxcore.Bidder, 0), nil
 }
 
-func (s *AdxServer) broadcast(ctx *adxcore.BidRequestCtx, bidders []*adxcore.Bidder) error {
-	// 广播每一个参与竞价方，并构建生成多个Canidates
+func (s *AdxServer) broadcast(ctx *adxcore.BidRequestCtx, bidders []adxcore.Bidder) error {
+	// 创建广播管理器
+	broadcastManager := NewBroadcastManager(s.appCtx)
+
+	// 向定向的bidder广播竞价请求
+	candidates, err := broadcastManager.BroadcastWithBidders(ctx, bidders)
+	if err != nil {
+		return fmt.Errorf("broadcast to bidders failed: %w", err)
+	}
+
+	// 将竞价候选者添加到上下文中
+	for _, candidate := range candidates {
+		ctx.AddCandidate(candidate)
+	}
 
 	return nil
 }

@@ -72,16 +72,11 @@ func TestBroadcastManager_BroadcastToBidders(t *testing.T) {
 	// 创建广播管理器
 	bm := NewBroadcastManager(appCtx)
 
-	// 注册模拟bidder
-	factory := adxcore.GetGlobalBidderFactory()
-
-	// 注册健康的bidder
-	healthyBidder := NewMockBidder("healthy-1", true, 50*time.Millisecond, false)
-	factory.RegisterBidder(healthyBidder)
-
-	// 注册会失败的bidder
-	failingBidder := NewMockBidder("failing-1", true, 10*time.Millisecond, true)
-	factory.RegisterBidder(failingBidder)
+	// 创建模拟bidder列表
+	bidders := []adxcore.Bidder{
+		NewMockBidder("healthy-1", true, 50*time.Millisecond, false),
+		NewMockBidder("failing-1", true, 10*time.Millisecond, true),
+	}
 
 	// 创建竞价请求上下文
 	bidRequest := adxcore.NewBidRequestCtx(ctx, &admux_rtb.BidRequest{
@@ -89,7 +84,7 @@ func TestBroadcastManager_BroadcastToBidders(t *testing.T) {
 	})
 
 	// 执行广播
-	responses, err := bm.BroadcastToBidders(bidRequest)
+	responses, err := bm.BroadcastToBidders(bidRequest, bidders)
 
 	// 验证结果
 	assert.NoError(t, err)
@@ -116,7 +111,7 @@ func TestBroadcastManager_BroadcastToBidders(t *testing.T) {
 	assert.Greater(t, failureCount, 0)
 }
 
-func TestBroadcastManager_GetHealthyBidders(t *testing.T) {
+func TestBroadcastManager_FilterHealthyBidders(t *testing.T) {
 	// 创建测试上下文
 	appCtx := &AdxServerContext{
 		Config: &config.ServerConfig{
@@ -127,17 +122,14 @@ func TestBroadcastManager_GetHealthyBidders(t *testing.T) {
 	// 创建广播管理器
 	bm := NewBroadcastManager(appCtx)
 
-	// 注册模拟bidder
-	factory := adxcore.GetGlobalBidderFactory()
+	// 创建模拟bidder列表
+	bidders := []adxcore.Bidder{
+		NewMockBidder("healthy-1", true, 10*time.Millisecond, false),
+		NewMockBidder("healthy-2", true, 10*time.Millisecond, false),
+	}
 
-	// 注册健康的bidder
-	healthyBidder1 := NewMockBidder("healthy-1", true, 10*time.Millisecond, false)
-	healthyBidder2 := NewMockBidder("healthy-2", true, 10*time.Millisecond, false)
-	factory.RegisterBidder(healthyBidder1)
-	factory.RegisterBidder(healthyBidder2)
-
-	// 获取健康bidder
-	healthyBidders := bm.getHealthyBidders()
+	// 过滤健康bidder
+	healthyBidders := bm.filterHealthyBidders(bidders)
 
 	// 验证结果
 	assert.Equal(t, 2, len(healthyBidders))
@@ -167,10 +159,10 @@ func TestBroadcastManager_TimeoutHandling(t *testing.T) {
 	// 创建广播管理器
 	bm := NewBroadcastManager(appCtx)
 
-	// 注册模拟bidder（有高延迟）
-	factory := adxcore.GetGlobalBidderFactory()
-	slowBidder := NewMockBidder("slow-1", true, 200*time.Millisecond, false)
-	factory.RegisterBidder(slowBidder)
+	// 创建模拟bidder列表（有高延迟）
+	bidders := []adxcore.Bidder{
+		NewMockBidder("slow-1", true, 200*time.Millisecond, false),
+	}
 
 	// 创建竞价请求上下文
 	bidRequest := adxcore.NewBidRequestCtx(ctx, &admux_rtb.BidRequest{
@@ -178,7 +170,7 @@ func TestBroadcastManager_TimeoutHandling(t *testing.T) {
 	})
 
 	// 执行广播（应该超时）
-	responses, err := bm.BroadcastToBidders(bidRequest)
+	responses, err := bm.BroadcastToBidders(bidRequest, bidders)
 
 	// 验证超时处理
 	assert.Error(t, err)
