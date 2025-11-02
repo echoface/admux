@@ -2,12 +2,11 @@ package adxserver
 
 import (
 	"context"
-	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 
 	"github.com/echoface/admux/internal/adx_engine/adxcore"
-	admux_rtb "github.com/echoface/admux/pkg/protogen/admux"
 	"github.com/gin-gonic/gin"
 )
 
@@ -23,21 +22,36 @@ func NewBidHandler(adxServer *AdxServer, appCtx *AdxServerContext) *BidHandler {
 	}
 }
 
-func (h *BidHandler) HandleBidRequest(c *gin.Context) {
+func (h *BidHandler) HandleAdMuxBid(c *gin.Context) {
 	// Extract request context with SSP ID
-	ctx := extractRequestContext(c)
-
-	// Get SSP adapter and configuration based on SSP ID
-	sspAdapter, sspConfig, err := h.adxServer.GetSSPAdapter(ctx)
+	info, err := extractRequestContext(c)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error":   "Invalid SSP configuration",
-			"details": err.Error(),
-		})
+		c.JSON(http.StatusBadRequest, newErrResponse(err, "invalid query params"))
 		return
 	}
 
-	// Read request body
+	h.handleBidRequest(c, info)
+}
+
+func (h *BidHandler) HandleKuaishouBid(c *gin.Context) {
+	// Extract request context with SSP ID
+	info, err := extractRequestContext(c)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, newErrResponse(err, "invalid query params"))
+		return
+	}
+
+	h.handleBidRequest(c, info)
+}
+
+func (h *BidHandler) handleBidRequest(c *gin.Context, info *reqInfo) {
+	// Get SSP adapter and configuration based on SSP ID
+	sspAdapter, sspConfig, err := h.adxServer.GetSSPAdapter(info.SSPID)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, newErrResponse(err, "Invalid SSP configuration"))
+		return
+	}
+
 	bodyData, err := io.ReadAll(c.Request.Body)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -49,7 +63,7 @@ func (h *BidHandler) HandleBidRequest(c *gin.Context) {
 	defer c.Request.Body.Close()
 
 	// Create bid request context
-	bidCtx := adxcore.NewBidRequestCtx(ctx, nil)
+	bidCtx := adxcore.NewBidRequestCtx(context.Background(), nil)
 	bidCtx.SetSSPInfo(sspConfig.ID, sspConfig)
 
 	// Convert SSP-specific request to internal format using adapter
@@ -84,52 +98,34 @@ func (h *BidHandler) HandleBidRequest(c *gin.Context) {
 	c.Data(http.StatusOK, "application/json", sspResponse)
 }
 
-// parseBidRequest parses the request body into an OpenRTB BidRequest
-func parseBidRequest(body io.ReadCloser) (*admux_rtb.BidRequest, error) {
-	defer body.Close()
-
-	// Read the request body
-	data, err := io.ReadAll(body)
-	if err != nil {
-		return nil, err
-	}
-
-	// Parse as JSON into OpenRTB BidRequest
-	bidReq := &admux_rtb.BidRequest{}
-	if err := json.Unmarshal(data, bidReq); err != nil {
-		return nil, err
-	}
-
-	return bidReq, nil
+type reqInfo struct {
+	SSPID    string
+	ClientIP string
 }
 
-func extractRequestContext(c *gin.Context) context.Context {
-	ctx := context.Background()
+func extractRequestContext(c *gin.Context) (*reqInfo, error) {
+	info := &reqInfo{}
 
 	// Extract SSP ID from query parameter (preferred) or header
-	sspID := c.Query("sspid")
-	if sspID == "" {
-		sspID = c.GetHeader("X-SSP-ID")
+	info.SSPID = c.Query("sspid")
+	if info.SSPID == "" {
+		info.SSPID = c.GetHeader("X-SSP-ID")
 	}
-	if sspID == "" {
+	if info.SSPID == "" {
 		// Fallback to ssid for backward compatibility
-		sspID = c.Query("ssid")
+		info.SSPID = c.Query("ssid")
+	}
+	if info.SSPID == "" {
+		return nil, fmt.Errorf("mising sspid in query")
 	}
 
-	if sspID != "" {
-		ctx = context.WithValue(ctx, "sspid", sspID)
+	info.ClientIP = c.ClientIP()
+	return info, nil
+}
+
+func newErrResponse(err error, msg string) gin.H {
+	return gin.H{
+		"error":   msg,
+		"details": err.Error(),
 	}
-
-	// Extract client IP
-	clientIP := c.ClientIP()
-	if clientIP != "" {
-		ctx = context.WithValue(ctx, "client_ip", clientIP)
-	}
-
-	// Extract other request metadata
-	ctx = context.WithValue(ctx, "method", c.Request.Method)
-	ctx = context.WithValue(ctx, "path", c.Request.URL.Path)
-	ctx = context.WithValue(ctx, "user_agent", c.Request.UserAgent())
-
-	return ctx
 }

@@ -1,14 +1,15 @@
 package sspadapter
 
 import (
-	"encoding/json"
 	"fmt"
 	"sync"
 
-	admux_rtb "github.com/echoface/admux/pkg/protogen/admux"
+	"google.golang.org/protobuf/proto"
+
 	"github.com/echoface/admux/internal/adx_engine/adxcore"
 	"github.com/echoface/admux/internal/adx_engine/config"
 	"github.com/echoface/admux/internal/adx_engine/sspadapter/kuaishou"
+	admux_rtb "github.com/echoface/admux/pkg/protogen/admux"
 )
 
 // SSPAdapterFactory manages SSP adapter instances
@@ -87,36 +88,34 @@ func (f *SSPAdapterFactory) createAdapter(sspID, protocol string) adxcore.ISSPAd
 
 // NewStubSSPAdapter creates a new stub SSP adapter
 // 创建新的存根SSP适配器
-func NewStubSSPAdapter(sspID string) *StubSSPAdapter {
-	return &StubSSPAdapter{sspID: sspID}
+func NewStubSSPAdapter(sspID string) *AdMuxStdAdapter {
+	return &AdMuxStdAdapter{sspID: sspID}
 }
 
-type StubSSPAdapter struct {
+type AdMuxStdAdapter struct {
 	sspID string
 }
 
 // ToInternalBidRequest converts SSP-specific bid request to internal format
 // 将SSP特定的竞价请求转换为内部格式
-func (a *StubSSPAdapter) ToInternalBidRequest(ctx *adxcore.BidRequestCtx, data []byte) error {
+func (a *AdMuxStdAdapter) ToInternalBidRequest(ctx *adxcore.BidRequestCtx, data []byte) error {
 	// For stub adapter, just parse as standard OpenRTB
 	// 对于存根适配器，直接解析为标准OpenRTB格式
 	var bidReq admux_rtb.BidRequest
-	if err := json.Unmarshal(data, &bidReq); err != nil {
+	if err := proto.Unmarshal(data, &bidReq); err != nil {
 		return fmt.Errorf("failed to parse bid request: %v", err)
 	}
-
 	ctx.Request = &bidReq
 	return nil
 }
 
 // PackSSPResponse converts internal bid response to SSP-specific format
 // 将内部竞价响应转换为SSP特定格式
-func (a *StubSSPAdapter) PackSSPResponse(ctx *adxcore.BidRequestCtx) ([]byte, error) {
+func (a *AdMuxStdAdapter) PackSSPResponse(ctx *adxcore.BidRequestCtx) ([]byte, error) {
 	if ctx.Response == nil {
-		return nil, fmt.Errorf("no response to pack")
+		return nil, fmt.Errorf("bad bid response to pack")
 	}
-
 	// For stub adapter, just marshal as JSON
 	// 对于存根适配器，直接序列化为JSON
-	return json.Marshal(ctx.Response)
+	return proto.Marshal(ctx.Response)
 }

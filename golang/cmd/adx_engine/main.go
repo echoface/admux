@@ -52,13 +52,10 @@ func main() {
 	r.GET("/metrics", gin.WrapH(promhttp.Handler()))
 
 	// RTB bid endpoints
-	r.POST("/bid/rtb/v1", bidHandler.HandleBidRequest)
+	r.POST("/bid/rtb/v1", bidHandler.HandleAdMuxBid)
 
 	// SSP-specific endpoints
-	r.POST("/bid/xiaomi", bidHandler.HandleBidRequest)
-	r.POST("/bid/kuaishou", bidHandler.HandleBidRequest)
-	r.POST("/bid/bytedance", bidHandler.HandleBidRequest)
-	r.POST("/bid/maoyan", bidHandler.HandleBidRequest)
+	r.POST("/bid/kuaishou", bidHandler.HandleKuaishouBid)
 
 	log.Println("ADMUX ADX Server starting on port 8080")
 	log.Printf("Health check: http://localhost:8080/health")

@@ -17,16 +17,16 @@ echo " Cleaning previous build..."
 rm -rf "${BUILD_DIR}"
 
 # Create build directory
-echo "Creating build directory..."
+echo " Creating build directory..."
 mkdir -p "${BUILD_DIR}"
 
 # Build the binary
-echo "Compiling adx_engine..."
+echo " Compiling adx_engine..."
 cd "${PROJECT_ROOT}"
 go build -o "${BUILD_DIR}/${BINARY_NAME}" ./cmd/adx_engine
 
 # Copy configuration files
-echo "Copying configuration files..."
+echo " Copying configuration files..."
 cp -r "${PROJECT_ROOT}/cmd/adx_engine/conf" "${BUILD_DIR}/"
 
 # Create README file
@@ -62,7 +62,7 @@ Set the `RUN_TYPE` environment variable to select the configuration:
 EOF
 
 # Set executable permissions
-echo "=' Setting executable permissions..."
+echo " Setting executable permissions..."
 chmod +x "${BUILD_DIR}/${BINARY_NAME}"
 
 # Display build summary

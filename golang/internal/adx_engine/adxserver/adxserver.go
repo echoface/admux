@@ -1,7 +1,6 @@
 package adxserver
 
 import (
-	"context"
 	"fmt"
 
 	"github.com/bytedance/gg/gslice"
@@ -67,6 +66,7 @@ func (s *AdxServer) completeFeatures(ctx *adxcore.BidRequestCtx) error {
 	return nil
 }
 
+// targetingBidders 根据各bidder 和 ssp的要求，得到最终需要广播的竞价方
 func (s *AdxServer) targetingBidders(ctx *adxcore.BidRequestCtx) ([]*adxcore.Bidder, error) {
 	return make([]*adxcore.Bidder, 0), nil
 }
@@ -93,10 +93,9 @@ func (s *AdxServer) rankingCandidates(ctx *adxcore.BidRequestCtx) error {
 
 // GetSSPAdapter retrieves SSP adapter and configuration based on context
 // 根据上下文获取SSP适配器和配置
-func (s *AdxServer) GetSSPAdapter(ctx context.Context) (adxcore.ISSPAdapter, *config.SSPConfig, error) {
+func (s *AdxServer) GetSSPAdapter(sspID string) (adxcore.ISSPAdapter, *config.SSPConfig, error) {
 	// Extract SSP ID from context
-	sspID, ok := ctx.Value("sspid").(string)
-	if !ok || sspID == "" {
+	if sspID == "" {
 		return nil, nil, fmt.Errorf("SSP ID not found in request context")
 	}
 

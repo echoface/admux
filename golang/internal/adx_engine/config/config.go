@@ -8,8 +8,8 @@ import (
 // ServerConfig 服务器配置结构
 type ServerConfig struct {
 	// 运行时信息
-	RunType    string `yaml:"-"`    // test/prod
-	ConfigFile string `yaml:"-"`    // 配置文件路径
+	RunType    string `yaml:"-"` // test/prod
+	ConfigFile string `yaml:"-"` // 配置文件路径
 
 	// 服务器配置
 	Host            string        `yaml:"host"`
@@ -40,28 +40,28 @@ type ServerConfig struct {
 
 // LoggingConfig 日志配置
 type LoggingConfig struct {
-	Level        string `yaml:"level"`
-	Output       string `yaml:"output"`
-	FilePath     string `yaml:"file_path"`
-	MaxSize      string `yaml:"max_size"`
-	MaxBackups   int    `yaml:"max_backups"`
-	MaxAge       int    `yaml:"max_age"`
-	Compress     bool   `yaml:"compress"`
-	EnableJSON   bool   `yaml:"enable_json"`
+	Level      string `yaml:"level"`
+	Output     string `yaml:"output"`
+	FilePath   string `yaml:"file_path"`
+	MaxSize    string `yaml:"max_size"`
+	MaxBackups int    `yaml:"max_backups"`
+	MaxAge     int    `yaml:"max_age"`
+	Compress   bool   `yaml:"compress"`
+	EnableJSON bool   `yaml:"enable_json"`
 }
 
 // RedisConfig Redis配置
 type RedisConfig struct {
-	Addr            string        `yaml:"addr"`
-	Password        string        `yaml:"password"`
-	DB              int           `yaml:"db"`
-	PoolSize        int           `yaml:"pool_size"`
-	MinIdleConns    int           `yaml:"min_idle_conns"`
-	DialTimeout     time.Duration `yaml:"dial_timeout"`
-	ReadTimeout     time.Duration `yaml:"read_timeout"`
-	WriteTimeout    time.Duration `yaml:"write_timeout"`
-	IdleTimeout     time.Duration `yaml:"idle_timeout"`
-	MaxRetries      int           `yaml:"max_retries"`
+	Addr         string        `yaml:"addr"`
+	Password     string        `yaml:"password"`
+	DB           int           `yaml:"db"`
+	PoolSize     int           `yaml:"pool_size"`
+	MinIdleConns int           `yaml:"min_idle_conns"`
+	DialTimeout  time.Duration `yaml:"dial_timeout"`
+	ReadTimeout  time.Duration `yaml:"read_timeout"`
+	WriteTimeout time.Duration `yaml:"write_timeout"`
+	IdleTimeout  time.Duration `yaml:"idle_timeout"`
+	MaxRetries   int           `yaml:"max_retries"`
 }
 
 // MonitoringConfig 监控配置
