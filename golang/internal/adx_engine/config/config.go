@@ -35,6 +35,9 @@ type ServerConfig struct {
 	// Bidder配置
 	Bidders []BidderConfig `yaml:"bidders"`
 
+	// S3配置
+	S3 S3Config `yaml:"s3"`
+
 	// 其他配置项...
 }
 
@@ -136,4 +139,16 @@ func (c *ServerConfig) GetAddress() string {
 		c.Port = 8080
 	}
 	return fmt.Sprintf("%s:%d", c.Host, c.Port)
+}
+
+// S3Config S3存储配置
+type S3Config struct {
+	Endpoint        string        `yaml:"endpoint"`
+	AccessKeyID     string        `yaml:"access_key_id"`
+	SecretAccessKey string        `yaml:"secret_access_key"`
+	BucketName      string        `yaml:"bucket_name"`
+	Prefix          string        `yaml:"prefix"`
+	UseSSL          bool          `yaml:"use_ssl"`
+	ScanInterval    time.Duration `yaml:"scan_interval"`
+	Region          string        `yaml:"region"`
 }
