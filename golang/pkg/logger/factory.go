@@ -8,7 +8,7 @@ const (
 	Zerolog LoggerType = "zerolog"
 )
 
-var Default Logger = MustNew(Zerolog, DefaultConfig())
+var Default Logger = MustNew(Zap, DefaultConfig())
 
 func MustNew(loggerType LoggerType, config Config) Logger {
 	logger, err := New(loggerType, config)

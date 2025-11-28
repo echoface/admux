@@ -1,12 +1,12 @@
 # ADMUX ADX Server Production Environment Configuration
 
-server:
-  port: 8080
-  read_timeout: 100ms
-  write_timeout: 100ms
-  max_connections: 10000
-  enable_pprof: false
-  shutdown_timeout: 30s
+host: localhost
+port: 8080
+read_timeout: 100ms
+write_timeout: 100ms
+max_connections: 10000
+enable_pprof: false
+shutdown_timeout: 30s
 
 logging:
   level: warn
@@ -45,6 +45,7 @@ monitoring:
 
   jaeger:
     enabled: false
+    endpoint: ""
 
 ssps:
   - id: "xiaomi"
@@ -110,52 +111,6 @@ bidders:
     retry_count: 2
     retry_delay: 10ms
 
-routing:
-  default_floor_price: 0.5
-  profit_margin: 0.15
-  min_bid_increment: 0.01
-  enable_pctr_prediction: false
-  pctr_service_url: ${PCTR_SERVICE_URL}
-
-decision:
-  scoring_weights:
-    bid_price: 0.6
-    predicted_ctr: 0.3
-    quality_score: 0.1
-  auction_type: "modified_first_price"
-  pricing:
-    min_price_increment: 0.01
-    max_price_adjustment: 0.2
-    price_precision: 4
-
-dmp:
-  enabled: true
-  timeout: 20ms
-  cache_ttl: 300s
-  endpoints:
-    - "${DMP_SERVICE_URL}/user/profile"
-    - "${DMP_SERVICE_URL}/user/segments"
-
-cookie_mapping:
-  enabled: true
-  timeout: 10ms
-  sync_rate: 0.1
-  providers:
-    - name: "cm.cm"
-      endpoint: "http://cm.cm/cmexchange"
-      timeout: 50ms
-
-security:
-  enable_rate_limit: true
-  rate_limit:
-    requests_per_minute: 10000
-    burst: 1000
-  enable_cors: true
-  cors:
-    allowed_origins: ${ALLOWED_ORIGINS}
-    allowed_methods: ["GET", "POST", "OPTIONS"]
-    allowed_headers: ["Content-Type", "Authorization", "X-Request-ID"]
-
 s3:
   endpoint: ${S3_ENDPOINT}
   access_key_id: ${S3_ACCESS_KEY_ID}
@@ -165,9 +120,3 @@ s3:
   use_ssl: true
   scan_interval: 1m
   region: ${S3_REGION}
-
-feature_flags:
-  enable_debug_mode: false
-  enable_request_logging: false
-  enable_response_logging: false
-  enable_performance_profiling: false

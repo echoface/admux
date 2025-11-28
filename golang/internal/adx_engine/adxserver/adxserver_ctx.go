@@ -2,6 +2,7 @@ package adxserver
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"sync"
 	"time"
@@ -11,6 +12,7 @@ import (
 
 	"github.com/echoface/admux/internal/adx_engine/config"
 	"github.com/echoface/admux/internal/adx_engine/sspadapter"
+	"github.com/echoface/admux/pkg/jsonx"
 	"github.com/echoface/admux/pkg/logger"
 )
 
@@ -69,7 +71,7 @@ func NewAppContext(cfg *config.ServerConfig) *AdxServerContext {
 	if cfg == nil {
 		cfg = config.NewDefaultConfig()
 	}
-
+	fmt.Println("use config:", jsonx.Pretty(cfg))
 	// Create context for graceful shutdown
 	shutdownCtx, shutdownCancel := context.WithCancel(context.Background())
 
@@ -88,7 +90,7 @@ func NewAppContext(cfg *config.ServerConfig) *AdxServerContext {
 
 	// Create HTTP server
 	httpServer := &http.Server{
-		Addr:         cfg.Host + ":" + string(rune(cfg.Port)),
+		Addr:         fmt.Sprintf("%s:%d", cfg.Host, cfg.Port),
 		Handler:      router,
 		ReadTimeout:  cfg.ReadTimeout,
 		WriteTimeout: cfg.WriteTimeout,

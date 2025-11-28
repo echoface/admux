@@ -28,3 +28,23 @@ type Config struct {
 	MaxAge      int  // maximum number of days to retain old log files
 	Compress    bool // whether to compress rotated log files
 }
+
+func Debug(msg string, keysAndValues ...interface{}) {
+	Default.Debug(msg, keysAndValues...)
+}
+
+func Info(msg string, keysAndValues ...interface{}) {
+	Default.Info(msg, keysAndValues...)
+}
+
+func Warn(msg string, keysAndValues ...interface{}) {
+	Default.Warn(msg, keysAndValues...)
+}
+
+func Error(msg string, keysAndValues ...interface{}) {
+	Default.Error(msg, keysAndValues...)
+}
+
+func Fatal(msg string, keysAndValues ...interface{}) {
+	Default.Fatal(msg, keysAndValues...)
+}
