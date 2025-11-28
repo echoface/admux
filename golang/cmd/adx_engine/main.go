@@ -13,7 +13,7 @@ import (
 
 func main() {
 	// Load configuration based on RUN_TYPE
-	cfg, err := config.LoadConfig("adxserver")
+	cfg, err := config.LoadAdxConfig()
 	if err != nil {
 		log.Fatalf("Failed to load config: %v", err)
 	}

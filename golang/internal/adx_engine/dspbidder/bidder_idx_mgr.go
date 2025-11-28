@@ -13,7 +13,7 @@ import (
 
 // BidderIndexManager DSP索引管理器
 type BidderIndexManager struct {
-	config       *config.ServerConfig
+	config       *config.AdxServerConfig
 	configLoader *ConfigLoader
 	indexBuilder *IndexBuilder
 	dynamicCache *DSPDynamicCache
@@ -33,7 +33,7 @@ type BidderIndexManager struct {
 }
 
 // NewBidderIndexManager 创建DSP索引管理器
-func NewBidderIndexManager(cfg *config.ServerConfig) (*BidderIndexManager, error) {
+func NewBidderIndexManager(cfg *config.AdxServerConfig) (*BidderIndexManager, error) {
 	ctx, cancel := context.WithCancel(context.Background())
 
 	// 创建DSP配置加载器

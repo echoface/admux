@@ -3,54 +3,24 @@ package config
 import (
 	"fmt"
 	"time"
+
+	"github.com/echoface/admux/pkg/config"
 )
 
-// ServerConfig 服务器配置结构
-type ServerConfig struct {
-	// 运行时信息
-	RunType    string `yaml:"-"` // test/prod
-	ConfigFile string `yaml:"-"` // 配置文件路径
+// ============================================================================
+// ADX Engine 专用配置
+// ============================================================================
 
-	// 服务器配置
-	Host            string        `yaml:"host"`
-	Port            int           `yaml:"port"`
-	ReadTimeout     time.Duration `yaml:"read_timeout"`
-	WriteTimeout    time.Duration `yaml:"write_timeout"`
-	MaxConnections  int           `yaml:"max_connections"`
-	EnablePprof     bool          `yaml:"enable_pprof"`
-	ShutdownTimeout time.Duration `yaml:"shutdown_timeout"`
+// AdxServerConfig ADX服务器配置
+type AdxServerConfig struct {
+	// 基础配置（嵌入或复制通用配置）
+	config.BaseConfig `yaml:",inline"`
 
-	// 日志配置
-	Logging LoggingConfig `yaml:"logging"`
-
-	// Redis配置
-	Redis RedisConfig `yaml:"redis"`
-
-	// 监控配置
-	Monitoring MonitoringConfig `yaml:"monitoring"`
-
-	// SSP配置
-	SSPs []SSPConfig `yaml:"ssps"`
-
-	// Bidder配置
-	Bidders []BidderConfig `yaml:"bidders"`
-
-	// S3配置
-	S3 S3Config `yaml:"s3"`
-
-	// 其他配置项...
-}
-
-// LoggingConfig 日志配置
-type LoggingConfig struct {
-	Level      string `yaml:"level"`
-	Output     string `yaml:"output"`
-	FilePath   string `yaml:"file_path"`
-	MaxSize    string `yaml:"max_size"`
-	MaxBackups int    `yaml:"max_backups"`
-	MaxAge     int    `yaml:"max_age"`
-	Compress   bool   `yaml:"compress"`
-	EnableJSON bool   `yaml:"enable_json"`
+	// ADX Engine 特定配置
+	Redis    RedisConfig    `yaml:"redis"`
+	SSPs     []SSPConfig    `yaml:"ssps"`
+	Bidders  []BidderConfig `yaml:"bidders"`
+	S3       S3Config       `yaml:"s3"`
 }
 
 // RedisConfig Redis配置
@@ -65,35 +35,6 @@ type RedisConfig struct {
 	WriteTimeout time.Duration `yaml:"write_timeout"`
 	IdleTimeout  time.Duration `yaml:"idle_timeout"`
 	MaxRetries   int           `yaml:"max_retries"`
-}
-
-// MonitoringConfig 监控配置
-type MonitoringConfig struct {
-	Prometheus  PrometheusConfig  `yaml:"prometheus"`
-	HealthCheck HealthCheckConfig `yaml:"health_check"`
-	Jaeger      JaegerConfig      `yaml:"jaeger"`
-}
-
-// PrometheusConfig Prometheus配置
-type PrometheusConfig struct {
-	Enabled   bool   `yaml:"enabled"`
-	Endpoint  string `yaml:"endpoint"`
-	Namespace string `yaml:"namespace"`
-	Subsystem string `yaml:"subsystem"`
-}
-
-// HealthCheckConfig 健康检查配置
-type HealthCheckConfig struct {
-	Enabled  bool          `yaml:"enabled"`
-	Endpoint string        `yaml:"endpoint"`
-	Interval time.Duration `yaml:"interval"`
-	Timeout  time.Duration `yaml:"timeout"`
-}
-
-// JaegerConfig Jaeger配置
-type JaegerConfig struct {
-	Enabled  bool   `yaml:"enabled"`
-	Endpoint string `yaml:"endpoint"`
 }
 
 // SSPConfig SSP配置
@@ -120,27 +61,6 @@ type BidderConfig struct {
 	RetryDelay time.Duration `yaml:"retry_delay"`
 }
 
-// NewDefaultConfig 创建默认配置（保持向后兼容）
-func NewDefaultConfig() *ServerConfig {
-	return &ServerConfig{
-		Host:         "localhost",
-		Port:         8080,
-		ReadTimeout:  30 * time.Second,
-		WriteTimeout: 30 * time.Second,
-	}
-}
-
-// GetAddress 获取服务器地址
-func (c *ServerConfig) GetAddress() string {
-	if c.Host == "" {
-		c.Host = "localhost"
-	}
-	if c.Port == 0 {
-		c.Port = 8080
-	}
-	return fmt.Sprintf("%s:%d", c.Host, c.Port)
-}
-
 // S3Config S3存储配置
 type S3Config struct {
 	Endpoint        string        `yaml:"endpoint"`
@@ -151,4 +71,27 @@ type S3Config struct {
 	UseSSL          bool          `yaml:"use_ssl"`
 	ScanInterval    time.Duration `yaml:"scan_interval"`
 	Region          string        `yaml:"region"`
+}
+
+// ============================================================================
+// 配置加载器
+// ============================================================================
+
+// LoadAdxConfig 加载ADX服务器配置
+func LoadAdxConfig() (*AdxServerConfig, error) {
+	loader := config.NewLoader("adxserver")
+	var cfg AdxServerConfig
+
+	if err := loader.Load(&cfg); err != nil {
+		return nil, fmt.Errorf("failed to load ADX config: %w", err)
+	}
+
+	return &cfg, nil
+}
+
+// DefaultAdxConfig 获取默认ADX配置
+func DefaultAdxConfig() *AdxServerConfig {
+	return &AdxServerConfig{
+		BaseConfig: *config.DefaultBaseConfig(),
+	}
 }

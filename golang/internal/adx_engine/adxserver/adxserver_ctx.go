@@ -19,7 +19,7 @@ import (
 // AdxServerContext represents the global application context for the ADX server
 type AdxServerContext struct {
 	// Configuration
-	Config *config.ServerConfig
+	Config *config.AdxServerConfig
 
 	// HTTP server
 	HTTPServer *http.Server
@@ -67,9 +67,9 @@ type SSPAdapter interface {
 }
 
 // NewAppContext creates and initializes a new application context
-func NewAppContext(cfg *config.ServerConfig) *AdxServerContext {
+func NewAppContext(cfg *config.AdxServerConfig) *AdxServerContext {
 	if cfg == nil {
-		cfg = config.NewDefaultConfig()
+		cfg = config.DefaultAdxConfig()
 	}
 	fmt.Println("use config:", jsonx.Pretty(cfg))
 	// Create context for graceful shutdown
