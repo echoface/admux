@@ -70,10 +70,9 @@ func TestIndexBuilder_BEIndexerIntegration(t *testing.T) {
 	}
 
 	// 构建索引
-	idx, err := builder.BuildDSPIndex(dspMap)
+	err := builder.BuildDSPIndex(dspMap)
 	assert.NoError(t, err)
-	assert.NotNil(t, idx)
-	assert.Equal(t, 2, idx.Size())
+	assert.Equal(t, 2, builder.GetDSPCount())
 
 	// 验证 be_indexer 确实被初始化
 	assert.True(t, builder.compiled)
@@ -131,7 +130,22 @@ func TestIndexBuilder_DocIDMapping(t *testing.T) {
 		DSPID:     dspID,
 		DSPName:   "Test DSP",
 		Status:    "active",
-		Targeting: nil,
+		QPSLimit:  1000,
+		Targeting: &DSPTargeting{
+			IndexingDoc: []IndexingClause{
+				{
+					ClauseID:    "clause_1",
+					Description: "Test clause",
+					Conditions: []Condition{
+						{
+							Field:    "USER_OS",
+							Operator: "EQ",
+							Values:   []string{"ios"},
+						},
+					},
+				},
+			},
+		},
 	}
 
 	// 手动调用 addDSPDocument
@@ -139,11 +153,11 @@ func TestIndexBuilder_DocIDMapping(t *testing.T) {
 	assert.NoError(t, err)
 
 	// 验证 docID 到 dspID 的映射被建立
-	assert.Equal(t, 1, len(builder.docIDToDSPID))
+	assert.Equal(t, 1, len(builder.docIDMap))
 
 	// 测试反向查找
 	docID := be_indexer.DocID(hashStringToDocID(dspID))
-	foundDSPID := builder.docIDToDSPID(docID)
+	foundDSPID := builder.docIDMap[docID]
 	assert.Equal(t, dspID, foundDSPID)
 
 	t.Logf("DocID mapping test passed! DSP: %s -> DocID: %d", dspID, docID)

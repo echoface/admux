@@ -17,8 +17,8 @@ type BidderIndexManager struct {
 	configLoader *ConfigLoader
 	indexBuilder *IndexBuilder
 	dynamicCache *DSPDynamicCache
-	currentIndex *DSPIndex
 	factory      *adxcore.BidderFactory
+	indexPath    string
 
 	// 运行时状态
 	ctx    context.Context
@@ -69,6 +69,7 @@ func NewBidderIndexManager(cfg *config.AdxServerConfig) (*BidderIndexManager, er
 		indexBuilder: indexBuilder,
 		dynamicCache: dynamicCache,
 		factory:      factory,
+		indexPath:    "dsp_index.dat",
 		ctx:          ctx,
 		cancel:       cancel,
 	}
@@ -120,6 +121,22 @@ func (m *BidderIndexManager) Stop() error {
 
 // initialLoad 初始加载DSP索引
 func (m *BidderIndexManager) initialLoad() error {
+	log.Println("Loading DSP index...")
+
+	// 尝试加载现有索引
+	if m.indexBuilder.LoadIndex(m.indexPath) == nil {
+		log.Println("Loaded existing index from disk")
+		log.Println("Initial DSP load completed")
+		return nil
+	}
+
+	// 如果加载失败，从S3构建新索引
+	log.Println("No existing index, building from S3...")
+	return m.buildIndexFromS3()
+}
+
+// buildIndexFromS3 从S3构建索引
+func (m *BidderIndexManager) buildIndexFromS3() error {
 	log.Println("Loading DSPs from S3...")
 
 	dspMap, err := m.configLoader.ReadAllDSPs()
@@ -135,24 +152,18 @@ func (m *BidderIndexManager) initialLoad() error {
 	log.Printf("Found %d DSPs from S3", len(dspMap))
 
 	// 构建索引
-	index, err := m.indexBuilder.BuildDSPIndex(dspMap)
-	if err != nil {
+	if err := m.indexBuilder.BuildDSPIndex(dspMap); err != nil {
 		return fmt.Errorf("failed to build index: %w", err)
+	}
+
+	// 保存索引到磁盘
+	if err := m.indexBuilder.SaveIndex(m.indexPath); err != nil {
+		log.Printf("Failed to save index: %v", err)
 	}
 
 	// 注册Bidder
 	if err := m.registerBidders(dspMap); err != nil {
 		return fmt.Errorf("failed to register bidders: %w", err)
-	}
-
-	// 更新当前索引
-	m.mu.Lock()
-	m.currentIndex = index
-	m.mu.Unlock()
-
-	// 切换索引
-	if err := m.indexBuilder.SwitchIndex(index); err != nil {
-		log.Printf("Failed to switch index: %v", err)
 	}
 
 	m.lastScanTime = time.Now()
@@ -228,68 +239,26 @@ func (m *BidderIndexManager) scanAndUpdate() {
 		return
 	}
 
-	m.mu.RLock()
-	oldIndex := m.currentIndex
-	m.mu.RUnlock()
-
-	// 检查是否有变化
-	if m.hasChanges(oldIndex, dspMap) {
-		log.Println("DSP changes detected, updating index...")
-
-		// 构建新索引
-		newIndex, err := m.indexBuilder.BuildDSPIndex(dspMap)
-		if err != nil {
-			log.Printf("Failed to build new index: %v", err)
-			m.errorCount++
-			return
-		}
-
-		// 切换索引
-		m.mu.Lock()
-		m.currentIndex = newIndex
-		m.mu.Unlock()
-
-		// 使用be_indexer切换索引
-		if err := m.indexBuilder.SwitchIndex(newIndex); err != nil {
-			log.Printf("Failed to switch index: %v", err)
-		}
-
-		// 更新Bidder注册
-		m.updateBidderRegistrations(dspMap)
-
-		log.Printf("DSP index updated successfully, total DSPs: %d", newIndex.Size())
+	// 构建新索引
+	log.Println("Building new index...")
+	if err := m.indexBuilder.BuildDSPIndex(dspMap); err != nil {
+		log.Printf("Failed to build new index: %v", err)
+		m.errorCount++
+		return
 	}
+
+	// 保存索引到磁盘
+	if err := m.indexBuilder.SaveIndex(m.indexPath); err != nil {
+		log.Printf("Failed to save index: %v", err)
+	}
+
+	// 更新Bidder注册
+	m.updateBidderRegistrations(dspMap)
+
+	log.Printf("DSP index updated successfully, total DSPs: %d", len(dspMap))
 
 	m.lastScanTime = time.Now()
 	m.scanCount++
-}
-
-// hasChanges 检查索引是否有变化
-func (m *BidderIndexManager) hasChanges(oldIndex *DSPIndex, newDSPMap map[string]*DSPInfo) bool {
-	if oldIndex == nil {
-		return true
-	}
-
-	if oldIndex.Size() != len(newDSPMap) {
-		return true
-	}
-
-	// 详细检查每个DSP的变化
-	for dspID, newDSP := range newDSPMap {
-		oldDSP, exists := oldIndex.GetDSP(dspID)
-		if !exists {
-			return true // 新增DSP
-		}
-
-		// 检查关键字段是否变化
-		if oldDSP.Status != newDSP.Status ||
-			oldDSP.QPSLimit != newDSP.QPSLimit ||
-			oldDSP.BudgetDaily != newDSP.BudgetDaily {
-			return true
-		}
-	}
-
-	return false
 }
 
 // updateBidderRegistrations 更新Bidder注册
@@ -361,11 +330,12 @@ func (m *BidderIndexManager) GetDSP(dspID string) (*DSPInfo, bool) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 
-	if m.currentIndex == nil {
-		return nil, false
+	// 使用be_indexer获取DSP信息
+	if m.indexBuilder != nil {
+		return m.indexBuilder.GetDSP(dspID)
 	}
 
-	return m.currentIndex.GetDSP(dspID)
+	return nil, false
 }
 
 // GetAllDSPs 获取所有DSP信息
@@ -373,11 +343,12 @@ func (m *BidderIndexManager) GetAllDSPs() map[string]*DSPInfo {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 
-	if m.currentIndex == nil {
-		return nil
+	// 使用be_indexer获取所有DSP信息
+	if m.indexBuilder != nil {
+		return m.indexBuilder.GetAllDSPs()
 	}
 
-	return m.currentIndex.GetAllDSPs()
+	return nil
 }
 
 // GetAllActiveDSPs 获取所有活跃DSP信息
@@ -385,12 +356,14 @@ func (m *BidderIndexManager) GetAllActiveDSPs() map[string]*DSPInfo {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 
-	if m.currentIndex == nil {
+	// 使用be_indexer获取所有DSP信息，然后过滤活跃状态
+	dspMap := m.GetAllDSPs()
+	if dspMap == nil {
 		return nil
 	}
 
 	activeDSPs := make(map[string]*DSPInfo)
-	for dspID, dspInfo := range m.currentIndex.GetAllDSPs() {
+	for dspID, dspInfo := range dspMap {
 		if dspInfo.Status == "active" {
 			activeDSPs[dspID] = dspInfo
 		}
@@ -404,21 +377,16 @@ func (m *BidderIndexManager) MatchDSPs(conditions map[string][]string) []*DSPInf
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 
-	if m.currentIndex == nil {
-		return nil
-	}
-
-	// 优先使用 be_indexer 进行查询
+	// 使用 be_indexer 进行查询
 	if m.indexBuilder != nil {
 		results, err := m.indexBuilder.SearchDSPs(conditions)
-		if err == nil && len(results) > 0 {
+		if err == nil {
 			return results
 		}
-		// 如果 be_indexer 查询失败，回退到内部索引
+		log.Printf("Index search error: %v", err)
 	}
 
-	// 回退到内部DSPIndex查询
-	return m.currentIndex.MatchDSPs(conditions)
+	return nil
 }
 
 // GetDSPQPS 获取DSP当前QPS
@@ -450,7 +418,7 @@ func (m *BidderIndexManager) GetMetrics() *BidderIndexManagerMetrics {
 		LastScanTime:   m.lastScanTime,
 		ScanCount:      m.scanCount,
 		ErrorCount:     m.errorCount,
-		CurrentDSPs:    m.currentIndex.Size(),
+		CurrentDSPs:    m.indexBuilder.GetDSPCount(),
 		ActiveDSPs:     len(m.GetAllActiveDSPs()),
 		RegisteredDSPs: m.factory.BidderCount(),
 		CacheMetrics:   m.dynamicCache.GetMetrics(),

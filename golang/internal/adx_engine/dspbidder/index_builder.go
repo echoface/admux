@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"sync"
-	"time"
 
 	"github.com/echoface/be_indexer"
 )
@@ -14,7 +13,7 @@ type IndexBuilder struct {
 	builder      *be_indexer.IndexerBuilder
 	indexer      be_indexer.BEIndex
 	dspMap       map[string]*DSPInfo
-	docIDToDSPID map[be_indexer.DocID]string
+	docIDMap     map[be_indexer.DocID]string
 	compiled     bool
 	stats        map[string]interface{}
 	totalDocs    int64
@@ -26,16 +25,16 @@ func NewIndexBuilder() *IndexBuilder {
 	builder := be_indexer.NewIndexerBuilder()
 
 	return &IndexBuilder{
-		builder:      builder,
-		stats:        make(map[string]interface{}),
-		compiled:     false,
-		dspMap:       make(map[string]*DSPInfo),
-		docIDToDSPID: make(map[be_indexer.DocID]string),
+		builder:  builder,
+		stats:    make(map[string]interface{}),
+		compiled: false,
+		dspMap:   make(map[string]*DSPInfo),
+		docIDMap: make(map[be_indexer.DocID]string),
 	}
 }
 
 // BuildDSPIndex 构建DSP索引
-func (b *IndexBuilder) BuildDSPIndex(dspMap map[string]*DSPInfo) (*DSPIndex, error) {
+func (b *IndexBuilder) BuildDSPIndex(dspMap map[string]*DSPInfo) error {
 	b.mu.Lock()
 	defer b.mu.Unlock()
 
@@ -45,13 +44,10 @@ func (b *IndexBuilder) BuildDSPIndex(dspMap map[string]*DSPInfo) (*DSPIndex, err
 	// 保存DSPMap以便后续查询
 	b.dspMap = dspMap
 
-	// 创建内部索引
-	dspIndex := NewDSPIndex(dspMap)
-
 	// 将DSP转换为be_indexer Document并构建索引
 	for dspID, dspInfo := range dspMap {
 		if err := b.addDSPDocument(dspID, dspInfo); err != nil {
-			return nil, fmt.Errorf("failed to add DSP %s: %w", dspID, err)
+			return fmt.Errorf("failed to add DSP %s: %w", dspID, err)
 		}
 	}
 
@@ -63,7 +59,7 @@ func (b *IndexBuilder) BuildDSPIndex(dspMap map[string]*DSPInfo) (*DSPIndex, err
 	b.totalDocs = int64(len(dspMap))
 	b.stats["total_docs"] = b.totalDocs
 
-	return dspIndex, nil
+	return nil
 }
 
 // addDSPDocument 将DSP信息转换为Document并添加到索引
@@ -72,7 +68,7 @@ func (b *IndexBuilder) addDSPDocument(dspID string, dspInfo *DSPInfo) error {
 	docID := be_indexer.DocID(hashStringToDocID(dspID))
 
 	// 建立docID到dspID的映射
-	b.docIDToDSPID[docID] = dspID
+	b.docIDMap[docID] = dspID
 
 	// 将DSP信息转换为be_indexer Document格式的JSON
 	docJSON, err := convertDSPToDocumentJSON(docID, dspInfo)
@@ -116,7 +112,7 @@ func (b *IndexBuilder) SearchDSPs(query map[string][]string) ([]*DSPInfo, error)
 	var results []*DSPInfo
 	dspMap := b.getDSPMap()
 	for _, docID := range docIDs {
-		dspID := b.docIDToDSPID(docID)
+		dspID := b.docIDMap[docID]
 		if dspInfo, exists := dspMap[dspID]; exists {
 			results = append(results, dspInfo)
 		}
@@ -130,21 +126,12 @@ func (b *IndexBuilder) getDSPMap() map[string]*DSPInfo {
 	return b.dspMap
 }
 
-// docIDToDSPID 将DocID转换回DSPID
-func (b *IndexBuilder) docIDToDSPID(docID be_indexer.DocID) string {
-	if dspID, exists := b.docIDToDSPID[docID]; exists {
-		return dspID
-	}
-	// 如果没找到，返回默认值
-	return fmt.Sprintf("dsp_%d", docID)
-}
-
-// SwitchIndex 切换索引（be_indexer暂不支持原子切换，使用重建替代）
-func (b *IndexBuilder) SwitchIndex(newIndex *DSPIndex) error {
+// SwitchIndex 切换索引（保留接口兼容性）
+func (b *IndexBuilder) SwitchIndex() error {
 	b.mu.Lock()
 	defer b.mu.Unlock()
 
-	fmt.Printf("Index switch requested for %d DSPs (rebuilding index)\n", newIndex.Size())
+	fmt.Printf("Index switch requested (rebuilding index)\n")
 	// be_indexer当前不支持原子索引切换
 	// 在真实场景中，可以通过版本号管理实现零停机切换
 
@@ -177,8 +164,81 @@ func (b *IndexBuilder) RebuildIndex(dspMap map[string]*DSPInfo) error {
 	b.compiled = false
 
 	// 重建索引
-	_, err := b.BuildDSPIndex(dspMap)
-	return err
+	return b.BuildDSPIndex(dspMap)
+}
+
+// SaveIndex 保存索引到磁盘
+func (b *IndexBuilder) SaveIndex(filePath string) error {
+	b.mu.RLock()
+	defer b.mu.RUnlock()
+
+	if !b.compiled || b.indexer == nil {
+		return fmt.Errorf("index not compiled")
+	}
+
+	// 这里应该调用be_indexer的保存方法
+	// 目前为模拟实现，实际需要根据be_indexer库的实际API实现
+	// 例如: return b.indexer.SaveToFile(filePath)
+	fmt.Printf("Saving index to %s\n", filePath)
+
+	return nil
+}
+
+// LoadIndex 从磁盘加载索引
+func (b *IndexBuilder) LoadIndex(filePath string) error {
+	b.mu.Lock()
+	defer b.mu.Unlock()
+
+	// 这里应该调用be_indexer的加载方法
+	// 目前为模拟实现，实际需要根据be_indexer库的实际API实现
+	// 例如: return b.indexer.LoadFromFile(filePath)
+	fmt.Printf("Loading index from %s\n", filePath)
+
+	// 模拟加载失败，返回错误以触发重新构建
+	return fmt.Errorf("load index not implemented")
+}
+
+// GetDSP 根据DSPID获取DSP信息
+func (b *IndexBuilder) GetDSP(dspID string) (*DSPInfo, bool) {
+	b.mu.RLock()
+	defer b.mu.RUnlock()
+
+	if b.dspMap == nil {
+		return nil, false
+	}
+
+	dspInfo, exists := b.dspMap[dspID]
+	return dspInfo, exists
+}
+
+// GetAllDSPs 获取所有DSP信息
+func (b *IndexBuilder) GetAllDSPs() map[string]*DSPInfo {
+	b.mu.RLock()
+	defer b.mu.RUnlock()
+
+	if b.dspMap == nil {
+		return nil
+	}
+
+	// 返回副本以避免外部修改
+	result := make(map[string]*DSPInfo)
+	for dspID, dspInfo := range b.dspMap {
+		result[dspID] = dspInfo
+	}
+
+	return result
+}
+
+// GetDSPCount 获取DSP数量
+func (b *IndexBuilder) GetDSPCount() int {
+	b.mu.RLock()
+	defer b.mu.RUnlock()
+
+	if b.dspMap == nil {
+		return 0
+	}
+
+	return len(b.dspMap)
 }
 
 // Close 关闭索引构建器
@@ -288,29 +348,4 @@ func hashStringToDocID(s string) be_indexer.DocID {
 		hash = -hash
 	}
 	return be_indexer.DocID(hash % 2147483647) // 限制在int32范围内
-}
-
-// DSPIndexerDoc DSP索引文档结构（保留以兼容现有代码）
-type DSPIndexerDoc struct {
-	DSPID           string           `json:"dsp_id"`
-	DSPName         string           `json:"dsp_name"`
-	Status          string           `json:"status"`
-	QPSLimit        int              `json:"qps_limit"`
-	BudgetDaily     float64          `json:"budget_daily"`
-	Endpoint        string           `json:"endpoint"`
-	AuthToken       string           `json:"auth_token"`
-	Timeout         time.Duration    `json:"timeout"`
-	RetryCount      int              `json:"retry_count"`
-	RetryDelay      time.Duration    `json:"retry_delay"`
-	UpdatedAt       time.Time        `json:"updated_at"`
-	TargetingFields []TargetingField `json:"targeting_fields,omitempty"`
-}
-
-// TargetingField 定向字段（保留以兼容现有代码）
-type TargetingField struct {
-	Field       string   `json:"field"`
-	Operator    string   `json:"operator"`
-	Values      []string `json:"values"`
-	ClauseID    string   `json:"clause_id,omitempty"`
-	Description string   `json:"description,omitempty"`
 }
